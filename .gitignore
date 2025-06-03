@@ -1,0 +1,37 @@
+# Other
+/captures
+.externalNativeBuild
+.cxx
+
+# Build files
+/app/build
+*.apk
+*.ap_
+
+# Generated files
+bin/
+gen/
+
+# Local
+/local.properties
+local.properties
+
+# Gradle
+*.log
+.gradle/
+build/
+
+# IDE
+/.idea/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+
+## File-based project format:
+*.ipr
+*.iws
+
+# Android Studio Navigation editor temp files
+.navigation/
