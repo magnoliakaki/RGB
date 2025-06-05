@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.ksp)
 }
 
 android {
@@ -56,4 +57,14 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Room
+    implementation(libs.androidx.room.runtime) // Assuming you have an alias like androidx-room-runtime in toml
+    ksp(libs.androidx.room.compiler)          // Use the alias from toml
+
+    // Kotlin Extensions and Coroutines support for Room
+    implementation(libs.androidx.room.ktx)
+
+    // Optional - Test helpers
+    testImplementation(libs.androidx.room.testing)
 }
