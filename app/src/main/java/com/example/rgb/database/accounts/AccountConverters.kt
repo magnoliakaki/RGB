@@ -1,8 +1,8 @@
-package com.example.rgb.database
+package com.example.rgb.database.accounts
 
 import androidx.room.TypeConverter
 
-class Converters {
+class AccountConverters {
     @TypeConverter
     fun fromAccountType(value: AccountType?): String? {
         return value?.name
