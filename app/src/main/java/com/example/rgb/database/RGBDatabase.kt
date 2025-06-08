@@ -1,6 +1,7 @@
 package com.example.rgb.database
 
 import android.content.Context
+import androidx.activity.result.launch
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -9,6 +10,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.rgb.database.accounts.AccountConverters
 import com.example.rgb.database.accounts.AccountDao
 import com.example.rgb.database.accounts.AccountEntity
+import com.example.rgb.database.accounts.AccountType
+import com.example.rgb.database.allocations.AllocationDao
+import com.example.rgb.database.allocations.AllocationEntity
 import com.example.rgb.database.categories.CategoryDao
 import com.example.rgb.database.categories.CategoryEntity
 import com.example.rgb.database.categories.MacroCategoryEntity
@@ -17,6 +21,11 @@ import com.example.rgb.database.categories.SubcategoryDao
 import com.example.rgb.database.categories.SubcategoryEntity
 import com.example.rgb.database.transactions.TransactionDao
 import com.example.rgb.database.transactions.TransactionEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.Date
+import java.util.concurrent.Executors
 
 @Database(
     entities = [
@@ -24,7 +33,8 @@ import com.example.rgb.database.transactions.TransactionEntity
         TransactionEntity::class,
         CategoryEntity::class,
         MacroCategoryEntity::class,
-        SubcategoryEntity::class
+        SubcategoryEntity::class,
+        AllocationEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -38,6 +48,7 @@ abstract class RGBDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun macroCategoryDao(): MacroCategoryDao
     abstract fun subcategoryDao(): SubcategoryDao
+    abstract fun allocationDao(): AllocationDao
 
     companion object {
         @Volatile private var INSTANCE: RGBDatabase? = null
@@ -52,7 +63,46 @@ abstract class RGBDatabase : RoomDatabase() {
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
-                            // Pre-populate data here
+                            INSTANCE?.let { database ->
+                                // Create a scope. IO dispatcher is good for database operations.
+                                // This scope will live as long as the onCreate method, effectively.
+                                // For longer-lived operations, you'd manage the scope's lifecycle more carefully.
+                                val scope = CoroutineScope(Dispatchers.IO)
+                                scope.launch {
+                                    val accountDao = database.accountDao()
+                                    accountDao.insertAccount(AccountEntity(
+                                        accountName = "Conto Corrente",
+                                        accountType = AccountType.CHECKING,
+                                        accountIcon = "cash",
+                                        accountBalance = 0.0
+                                    ))
+
+                                    val macroCategoryDao = database.macroCategoryDao()
+                                    macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
+                                        macroCategoryName = "Debiti"
+                                    ))
+                                    macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
+                                        macroCategoryName = "Abbonamenti"
+                                    ))
+                                    macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
+                                        macroCategoryName = "Bisogni"
+                                    ))
+                                    macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
+                                        macroCategoryName = "Desideri"
+                                    ))
+                                    macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
+                                        macroCategoryName = "Risparmi"
+                                    ))
+
+                                    val allocationDao = database.allocationDao()
+                                    allocationDao.insertAllocation(AllocationEntity(
+                                        allocationEndDate = Date(),
+                                        allocationAmount = 0.0,
+                                        allocationFrequencyType = "MONTHLY",
+                                        allocationFrequencyValue = 1
+                                    ))
+                                }
+                            }
                         }
                     })
                     .build()
