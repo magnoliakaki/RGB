@@ -19,18 +19,11 @@ import com.example.rgb.database.allocations.AllocationEntity
             parentColumns = ["accountId"],
             childColumns = ["categoryAccountId"],
             onDelete = androidx.room.ForeignKey.CASCADE
-        ),
-        androidx.room.ForeignKey(
-            entity = AllocationEntity::class,
-            parentColumns = ["allocationId"],
-            childColumns = ["categoryAllocationId"],
-            onDelete = androidx.room.ForeignKey.SET_DEFAULT
         )
 ],
     indices = [
         androidx.room.Index("macroCategoryId"),
-        androidx.room.Index("accountId"),
-        androidx.room.Index("allocationId")]
+        androidx.room.Index("accountId")]
     )
 data class CategoryEntity(
     @PrimaryKey(autoGenerate = true)
@@ -48,7 +41,4 @@ data class CategoryEntity(
 
     @ColumnInfo(name = "categoryAccountId")
     val categoryAccountId: Int,
-
-    @ColumnInfo(name = "categoryAllocationId")
-    val categoryAllocationId: Int = 1
 )

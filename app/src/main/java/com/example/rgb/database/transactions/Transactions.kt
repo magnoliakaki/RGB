@@ -3,9 +3,21 @@ package com.example.rgb.database.transactions
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.rgb.database.categories.CategoryEntity
 import java.util.Date
 
-@Entity(tableName = "transactions")
+@Entity(tableName = "transactions",
+    foreignKeys = [
+        androidx.room.ForeignKey(
+            entity = CategoryEntity::class,
+            parentColumns = ["categoryId"],
+            childColumns = ["transactionCategoryId"],
+            onDelete = androidx.room.ForeignKey.CASCADE
+        ),
+    ],
+    indices = [
+        androidx.room.Index("transactionCategoryId")
+])
 data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "transactionId")
@@ -22,4 +34,7 @@ data class TransactionEntity(
 
     @ColumnInfo(name = "transactionAmount")
     val transactionAmount: Double,
+
+    @ColumnInfo(name = "transactionCategoryId")
+    val transactionCategoryId: Int
 )
