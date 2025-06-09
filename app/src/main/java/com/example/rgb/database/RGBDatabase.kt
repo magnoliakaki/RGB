@@ -13,6 +13,7 @@ import com.example.rgb.database.accounts.AccountEntity
 import com.example.rgb.database.accounts.AccountType
 import com.example.rgb.database.allocations.AllocationDao
 import com.example.rgb.database.allocations.AllocationEntity
+import com.example.rgb.database.allocations.DateTimeConverters
 import com.example.rgb.database.categories.CategoryDao
 import com.example.rgb.database.categories.CategoryEntity
 import com.example.rgb.database.categories.MacroCategoryEntity
@@ -24,7 +25,6 @@ import com.example.rgb.database.transactions.TransactionEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Date
 import java.util.concurrent.Executors
 
 @Database(
@@ -40,7 +40,7 @@ import java.util.concurrent.Executors
     exportSchema = true
 )
 
-@TypeConverters(AccountConverters::class)
+@TypeConverters(AccountConverters::class, DateTimeConverters::class)
 abstract class RGBDatabase : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao
@@ -63,46 +63,13 @@ abstract class RGBDatabase : RoomDatabase() {
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
-                            INSTANCE?.let { database ->
-                                // Create a scope. IO dispatcher is good for database operations.
-                                // This scope will live as long as the onCreate method, effectively.
-                                // For longer-lived operations, you'd manage the scope's lifecycle more carefully.
-                                val scope = CoroutineScope(Dispatchers.IO)
-                                scope.launch {
-                                    val accountDao = database.accountDao()
-                                    accountDao.insertAccount(AccountEntity(
-                                        accountName = "Conto Corrente",
-                                        accountType = AccountType.CHECKING,
-                                        accountIcon = "cash",
-                                        accountBalance = 0.0
-                                    ))
-
-                                    val macroCategoryDao = database.macroCategoryDao()
-                                    macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
-                                        macroCategoryName = "Debiti"
-                                    ))
-                                    macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
-                                        macroCategoryName = "Abbonamenti"
-                                    ))
-                                    macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
-                                        macroCategoryName = "Bisogni"
-                                    ))
-                                    macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
-                                        macroCategoryName = "Desideri"
-                                    ))
-                                    macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
-                                        macroCategoryName = "Risparmi"
-                                    ))
-
-                                    val allocationDao = database.allocationDao()
-                                    allocationDao.insertAllocation(AllocationEntity(
-                                        allocationEndDate = Date(),
-                                        allocationAmount = 0.0,
-                                        allocationFrequencyType = "MONTHLY",
-                                        allocationFrequencyValue = 1
-                                    ))
-                                }
-                            }
+//                            INSTANCE?.let { database ->
+//                                // Create a scope. IO dispatcher is good for database operations.
+//                                // This scope will live as long as the onCreate method, effectively.
+//                                // For longer-lived operations, you'd manage the scope's lifecycle more carefully.
+//                                val scope = CoroutineScope(Dispatchers.IO)
+//                                scope.launch
+//                            }
                         }
                     })
                     .build()
