@@ -14,11 +14,11 @@ data class AccountEntity(
     val accountName: String,
 
     @ColumnInfo(name = "accountType")
-    val accountType: AccountType,
+    val accountType: AccountType = AccountType.CHECKING,
 
     @ColumnInfo(name = "accountIcon")
-    val accountIcon: String,
+    val accountIcon: String? = null,
 
     @ColumnInfo(name = "accountBalance")
-    val accountBalance: Double
+    val accountBalance: Double = 0.0
 )

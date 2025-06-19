@@ -24,16 +24,16 @@ data class TransactionEntity(
     val transactionId: Int = 0,
 
     @ColumnInfo(name = "transactionDescription")
-    val transactionDescription: String,
+    val transactionDescription: String? = null,
 
     @ColumnInfo(name = "transactionDate")
-    val transactionDate: Date,
+    val transactionDate: Date = Date(),
 
     @ColumnInfo(name = "transactionSign")
-    val transactionSign: String,
+    val transactionSign: Int = -1,
 
     @ColumnInfo(name = "transactionAmount")
-    val transactionAmount: Double,
+    val transactionAmount: Double = 0.0,
 
     @ColumnInfo(name = "transactionCategoryId")
     val transactionCategoryId: Int

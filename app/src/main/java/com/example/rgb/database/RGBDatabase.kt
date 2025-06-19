@@ -1,19 +1,21 @@
 package com.example.rgb.database
 
 import android.content.Context
-import androidx.activity.result.launch
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.rgb.R
 import com.example.rgb.database.accounts.AccountConverters
 import com.example.rgb.database.accounts.AccountDao
 import com.example.rgb.database.accounts.AccountEntity
 import com.example.rgb.database.accounts.AccountType
 import com.example.rgb.database.allocations.AllocationDao
 import com.example.rgb.database.allocations.AllocationEntity
-import com.example.rgb.database.allocations.DateTimeConverters
+import com.example.rgb.database.budget.BudgetConverters
+import com.example.rgb.database.budget.BudgetDao
+import com.example.rgb.database.budget.BudgetEntity
 import com.example.rgb.database.categories.CategoryDao
 import com.example.rgb.database.categories.CategoryEntity
 import com.example.rgb.database.categories.MacroCategoryEntity
@@ -22,10 +24,6 @@ import com.example.rgb.database.categories.SubcategoryDao
 import com.example.rgb.database.categories.SubcategoryEntity
 import com.example.rgb.database.transactions.TransactionDao
 import com.example.rgb.database.transactions.TransactionEntity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.util.concurrent.Executors
 
 @Database(
     entities = [
@@ -34,13 +32,14 @@ import java.util.concurrent.Executors
         CategoryEntity::class,
         MacroCategoryEntity::class,
         SubcategoryEntity::class,
-        AllocationEntity::class
+        AllocationEntity::class,
+        BudgetEntity::class
     ],
     version = 1,
     exportSchema = true
 )
 
-@TypeConverters(AccountConverters::class, DateTimeConverters::class)
+@TypeConverters(AccountConverters::class, BudgetConverters::class)
 abstract class RGBDatabase : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao
@@ -49,6 +48,7 @@ abstract class RGBDatabase : RoomDatabase() {
     abstract fun macroCategoryDao(): MacroCategoryDao
     abstract fun subcategoryDao(): SubcategoryDao
     abstract fun allocationDao(): AllocationDao
+    abstract fun budgetDao(): BudgetDao
 
     companion object {
         @Volatile private var INSTANCE: RGBDatabase? = null
@@ -78,4 +78,80 @@ abstract class RGBDatabase : RoomDatabase() {
             }
         }
     }
+}
+
+suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
+    val accountDao = rgbDatabase.accountDao()
+    val transactionDao = rgbDatabase.transactionDao()
+    val categoryDao = rgbDatabase.categoryDao()
+    val macroCategoryDao = rgbDatabase.macroCategoryDao()
+    val subcategoryDao = rgbDatabase.subcategoryDao()
+    val allocationDao = rgbDatabase.allocationDao()
+    val budgetDao = rgbDatabase.budgetDao()
+
+    /*
+     * Allocazioni
+     */
+
+    val allocationTransactions = allocationDao.insertAllocation(AllocationEntity(
+            allocationName = R.string.allocation_type_transactions.toString()
+        )
+    )
+
+    val allocationPocketMoney = allocationDao.insertAllocation(AllocationEntity(
+            allocationName = R.string.allocation_type_pocket_money.toString()
+        )
+    )
+
+    val allocationOngoing = allocationDao.insertAllocation(AllocationEntity(
+            allocationName = R.string.allocation_type_ongoing.toString()
+        )
+    )
+
+    val allocationSomeday = allocationDao.insertAllocation(AllocationEntity(
+            allocationName = R.string.allocation_type_someday.toString()
+        )
+    )
+
+    val allocationDeadline = allocationDao.insertAllocation(AllocationEntity(
+            allocationName = R.string.allocation_type_deadline.toString()
+        )
+    )
+
+    /*
+     * Macro categorie
+     */
+
+    val macroCategoryNeeds = macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
+            macroCategoryName = R.string.macro_category_needs.toString()
+        )
+    )
+
+    val macroCategoryWishes = macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
+            macroCategoryName = R.string.macro_category_wishes.toString()
+        )
+    )
+
+    val macroCategoryMusts = macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
+            macroCategoryName = R.string.macro_category_musts.toString()
+        )
+    )
+
+    val macroCategorySavings = macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
+            macroCategoryName = R.string.macro_category_savings.toString()
+        )
+    )
+
+    /*
+     * Conti
+     */
+
+    val accountTest = accountDao.insertAccount(AccountEntity(
+            accountName = "Test",
+            accountType = AccountType.CHECKING
+        )
+    )
+
+
+
 }

@@ -24,5 +24,5 @@ data class SubcategoryEntity(
     val subcategoryName: String,
 
     @ColumnInfo(name = "subcategoryCategoryId")
-    val subcategoryCategoryId: Int
+    val subcategoryCategoryId: Int? = null
 )

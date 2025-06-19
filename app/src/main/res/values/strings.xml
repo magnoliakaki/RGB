@@ -1,6 +1,23 @@
 <resources>
-    <string name="app_name">RGB</string>
+    <string name="app_name" translatable="false">RGB</string>
     <string name="account_type_checking">Checking</string>
     <string name="account_type_saving">Savings</string>
     <string name="account_type_credit">Credit card</string>
+    <string name="budget_reset_type_date">Date</string>
+    <string name="budget_reset_type_category">Category</string>
+    <string name="budget_weekend_shift_direction_forward">Forward</string>
+    <string name="budget_weekend_shift_direction_backward">Backward</string>
+    <string name="budget_surplus_type_rollover">Rollover</string>
+    <string name="budget_surplus_type_reset">Reset</string>
+    <string name="budget_surplus_type_category">Category</string>
+    <string name="allocation_type_transactions">Sum of Transactions</string>
+    <string name="allocation_type_pocket_money">Pocket Money</string>
+    <string name="allocation_type_ongoing">Ongoing</string>
+    <string name="allocation_type_someday">Someday Goal</string>
+    <string name="allocation_type_deadline">Deadline</string>
+    <string name="macro_category_needs">Needs</string>
+    <string name="macro_category_wishes">Wishes</string>
+    <string name="macro_category_musts">Musts</string>
+    <string name="macro_category_savings">Savings</string>
+    <string name="account_type_general">General</string>
 </resources>
