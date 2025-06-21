@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MacroCategoryDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertMacroCategory(macroCategory: MacroCategoryEntity): Int
+    suspend fun insertMacroCategory(macroCategory: MacroCategoryEntity): Long
 
     @Update
     suspend fun updateMacroCategory(macroCategory: MacroCategoryEntity)

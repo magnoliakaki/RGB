@@ -7,5 +7,5 @@ import androidx.room.OnConflictStrategy
 @Dao
 interface BudgetDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertBudget(budget: BudgetEntity): Int
+    suspend fun insertBudget(budget: BudgetEntity): Long
 }

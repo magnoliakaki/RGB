@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SubcategoryDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertSubcategory(subcategory: SubcategoryEntity): Int
+    suspend fun insertSubcategory(subcategory: SubcategoryEntity): Long
 
     @Update
     suspend fun updateSubcategory(subcategory: SubcategoryEntity)

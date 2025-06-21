@@ -15,9 +15,11 @@
     <string name="allocation_type_ongoing">In corso</string>
     <string name="allocation_type_someday">Prima o poi</string>
     <string name="allocation_type_deadline">Scadenza</string>
-    <string name="macro_category_needs">Bisogni</string>
+    <string name="macro_category_needs">Necessità</string>
     <string name="macro_category_wishes">Desideri</string>
-    <string name="macro_category_musts">Necessità</string>
+    <string name="macro_category_musts">Obbligatori</string>
     <string name="macro_category_savings">Risparmi</string>
     <string name="account_type_general">Generale</string>
+    <string name="macro_category_subs">Abbonamenti</string>
+    <string name="macro_category_debts">Debiti</string>
 </resources>

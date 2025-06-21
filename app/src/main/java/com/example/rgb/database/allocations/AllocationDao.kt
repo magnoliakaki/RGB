@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AllocationDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertAllocation(allocation: AllocationEntity): Int
+    suspend fun insertAllocation(allocation: AllocationEntity): Long
 
     @Update
     suspend fun updateAllocation(allocation: AllocationEntity)

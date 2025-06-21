@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AccountDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertAccount(account: AccountEntity): Int
+    suspend fun insertAccount(account: AccountEntity): Long
 
     @Update
     suspend fun updateAccount(account: AccountEntity)

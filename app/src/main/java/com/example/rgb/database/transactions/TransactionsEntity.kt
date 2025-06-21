@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.rgb.database.categories.CategoryEntity
-import java.util.Date
+import java.time.LocalDate
 
 @Entity(tableName = "transactions",
     foreignKeys = [
@@ -21,13 +21,13 @@ import java.util.Date
 data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "transactionId")
-    val transactionId: Int = 0,
+    val transactionId: Long = 0,
 
     @ColumnInfo(name = "transactionDescription")
     val transactionDescription: String? = null,
 
     @ColumnInfo(name = "transactionDate")
-    val transactionDate: Date = Date(),
+    val transactionDate: LocalDate = LocalDate.now(),
 
     @ColumnInfo(name = "transactionSign")
     val transactionSign: Int = -1,
@@ -36,5 +36,5 @@ data class TransactionEntity(
     val transactionAmount: Double = 0.0,
 
     @ColumnInfo(name = "transactionCategoryId")
-    val transactionCategoryId: Int
+    val transactionCategoryId: Long? = null
 )

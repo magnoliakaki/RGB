@@ -20,4 +20,6 @@
     <string name="macro_category_musts">Musts</string>
     <string name="macro_category_savings">Savings</string>
     <string name="account_type_general">General</string>
+    <string name="macro_category_subs">Subscriptions</string>
+    <string name="macro_category_debts">Debts</string>
 </resources>

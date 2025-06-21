@@ -24,6 +24,11 @@ import com.example.rgb.database.categories.SubcategoryDao
 import com.example.rgb.database.categories.SubcategoryEntity
 import com.example.rgb.database.transactions.TransactionDao
 import com.example.rgb.database.transactions.TransactionEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import android.util.Log
 
 @Database(
     entities = [
@@ -39,7 +44,7 @@ import com.example.rgb.database.transactions.TransactionEntity
     exportSchema = true
 )
 
-@TypeConverters(AccountConverters::class, BudgetConverters::class)
+@TypeConverters(AccountConverters::class, BudgetConverters::class, TransactionConverters::class)
 abstract class RGBDatabase : RoomDatabase() {
 
     abstract fun accountDao(): AccountDao
@@ -54,7 +59,9 @@ abstract class RGBDatabase : RoomDatabase() {
         @Volatile private var INSTANCE: RGBDatabase? = null
 
         fun getInstance(context: Context): Any {
+            Log.d("RGBDatabase", "return instance")
             return INSTANCE ?: synchronized(this) {
+                Log.d("RGBDatabase", "Database starting")
                 val instance = Room.databaseBuilder(
                                 context.applicationContext,
                                 RGBDatabase::class.java,
@@ -63,13 +70,7 @@ abstract class RGBDatabase : RoomDatabase() {
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
-//                            INSTANCE?.let { database ->
-//                                // Create a scope. IO dispatcher is good for database operations.
-//                                // This scope will live as long as the onCreate method, effectively.
-//                                // For longer-lived operations, you'd manage the scope's lifecycle more carefully.
-//                                val scope = CoroutineScope(Dispatchers.IO)
-//                                scope.launch
-//                            }
+                            Log.d("RGBDatabase", "Database created")
                         }
                     })
                     .build()
@@ -142,16 +143,88 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
         )
     )
 
+    val macroCategorySubs = macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
+            macroCategoryName = R.string.macro_category_subs.toString()
+        )
+    )
+
     /*
      * Conti
      */
 
-    val accountTest = accountDao.insertAccount(AccountEntity(
-            accountName = "Test",
+    val accountHype = accountDao.insertAccount(AccountEntity(
+            accountName = "Hype",
             accountType = AccountType.CHECKING
         )
     )
 
+    val accountBBVA = accountDao.insertAccount(AccountEntity(
+        accountName = "BBVA",
+        accountType = AccountType.SAVINGS
+    )
+    )
 
+    /*
+    * Categorie
+     */
 
+    val categoryGroceries = categoryDao.insertCategory(CategoryEntity(
+            categoryName = "Spesa",
+            categoryAccountId = accountHype,
+            categoryAllocationId = allocationPocketMoney,
+            categoryMacroCategoryId = macroCategoryNeeds,
+            categoryAllFrequencyMonths = 1,
+            categoryAllAmount = 150.00
+        )
+    )
+
+    val categorySavings = categoryDao.insertCategory(CategoryEntity(
+            categoryName = "Risparmi",
+            categoryAccountId = accountBBVA,
+            categoryAllocationId = allocationOngoing,
+            categoryMacroCategoryId = macroCategorySavings,
+            categoryAllFrequencyMonths = 1,
+            categoryAllAmount = 150.00
+        )
+    )
+
+    val categoryTripToPrague = categoryDao.insertCategory(CategoryEntity(
+            categoryName = "Viaggio a Praga",
+            categoryAccountId = accountBBVA,
+            categoryAllocationId = allocationDeadline,
+            categoryMacroCategoryId = macroCategoryWishes,
+            categoryAllEndDate = LocalDate.of(2025, 12, 31),
+            categoryAllEndAmount = 850.00,
+            categoryAllFrequencyMonths = 1
+        )
+    )
+
+    val categorySubscription = categoryDao.insertCategory(CategoryEntity(
+            categoryName = "Abbonamenti",
+            categoryAccountId = accountHype,
+            categoryAllocationId = allocationTransactions,
+            categoryMacroCategoryId = macroCategorySubs,
+            categoryAllFrequencyMonths = 1
+        )
+    )
+
+    val categoryIncome = categoryDao.insertCategory(CategoryEntity(
+            categoryName = "Stipendio",
+            categoryAccountId = accountHype,
+            categoryIncome = true
+        )
+    )
+
+    /*
+    * Budget
+     */
+
+    val budgetTest = budgetDao.insertBudget(BudgetEntity(
+            budgetName = "Test",
+            budgetResetType = com.example.rgb.database.budget.BudgetResetType.CATEGORY,
+            budgetResetCategory = categoryIncome,
+            budgetAutomaticAllocation = false,
+            budgetSurplusType = com.example.rgb.database.budget.BudgetSurplusType.RESET,
+        )
+    )
 }

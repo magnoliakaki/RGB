@@ -11,7 +11,7 @@ import java.time.LocalDate
     foreignKeys = [
         androidx.room.ForeignKey(
             entity = MacroCategoryEntity::class,
-            parentColumns = ["MacroCategoryId"],
+            parentColumns = ["macroCategoryId"],
             childColumns = ["categoryMacroCategoryId"],
             onDelete = androidx.room.ForeignKey.SET_NULL
         ),
@@ -29,29 +29,32 @@ import java.time.LocalDate
         )
 ],
     indices = [
-        androidx.room.Index("macroCategoryId"),
-        androidx.room.Index("accountId"),
-        androidx.room.Index("allocationId")]
+        androidx.room.Index("categoryMacroCategoryId"),
+        androidx.room.Index("categoryAccountId"),
+        androidx.room.Index("categoryAllocationId")]
     )
 data class CategoryEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "categoryId")
-    val categoryId: Int = 0,
+    val categoryId: Long = 0,
 
     @ColumnInfo(name = "categoryName")
     val categoryName: String,
+
+    @ColumnInfo(name = "categoryIncome")
+    val categoryIncome: Boolean = false,
 
     @ColumnInfo(name = "categoryIcon")
     val categoryIcon: String? = null,
 
     @ColumnInfo(name = "categoryMacroCategoryId")
-    val categoryMacroCategoryId: Int? = null,
+    val categoryMacroCategoryId: Long? = null,
 
     @ColumnInfo(name = "categoryAccountId")
-    val categoryAccountId: Int,
+    val categoryAccountId: Long,
 
     @ColumnInfo(name = "categoryAllocationId")
-    val categoryAllocationId: Int = 1,
+    val categoryAllocationId: Long? = null,
 
     @ColumnInfo(name = "categoryAllEndDate")
     val categoryAllEndDate: LocalDate? = null,

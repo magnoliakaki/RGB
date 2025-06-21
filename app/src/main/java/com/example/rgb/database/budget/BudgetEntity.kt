@@ -11,13 +11,20 @@ import com.example.rgb.database.categories.CategoryEntity
         parentColumns = ["categoryId"],
         childColumns = ["budgetSurplusCategoryId"],
         onDelete = androidx.room.ForeignKey.SET_DEFAULT
+    ), androidx.room.ForeignKey(
+        entity = CategoryEntity::class,
+        parentColumns = ["categoryId"],
+        childColumns = ["budgetResetCategory"],
+        onDelete = androidx.room.ForeignKey.SET_DEFAULT
     )],
-    indices = [androidx.room.Index("budgetSurplusCategoryId")]
+    indices = [androidx.room.Index("budgetSurplusCategoryId"),
+        androidx.room.Index("budgetResetCategory")
+    ]
 )
 data class BudgetEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "budgetId")
-    val budgetId: Int = 0,
+    val budgetId: Long = 0,
 
     @ColumnInfo(name = "budgetName")
     val budgetName: String,
@@ -25,14 +32,17 @@ data class BudgetEntity(
     @ColumnInfo(name = "budgetResetType")
     val budgetResetType: BudgetResetType = BudgetResetType.DATE,
 
+    @ColumnInfo(name = "budgetResetCategory")
+    val budgetResetCategory: Long? = null,
+
     @ColumnInfo(name = "budgetResetDay")
-    val budgetResetDay: Int?,
+    val budgetResetDay: Int? = null,
 
     @ColumnInfo(name = "budgetWeekendShift")
-    val budgetWeekendShift: Boolean?,
+    val budgetWeekendShift: Boolean? = null,
 
     @ColumnInfo(name = "budgetWeekendShiftDirection")
-    val budgetWeekendShiftDirection: BudgetWeekendShiftDirection?,
+    val budgetWeekendShiftDirection: BudgetWeekendShiftDirection? = null,
 
     @ColumnInfo(name = "budgetAutomaticAllocation")
     val budgetAutomaticAllocation: Boolean = false,
@@ -41,5 +51,5 @@ data class BudgetEntity(
     val budgetSurplusType: BudgetSurplusType = BudgetSurplusType.ROLLOVER,
 
     @ColumnInfo(name = "budgetSurplusCategoryId")
-    val budgetSurplusCategoryId: Int?
+    val budgetSurplusCategoryId: Long? = null
 )

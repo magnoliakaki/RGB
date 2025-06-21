@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class AllocationEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "allocationId")
-    val allocationId: Int = 0,
+    val allocationId: Long = 0,
 
     @ColumnInfo(name = "allocationName")
     val allocationName: String

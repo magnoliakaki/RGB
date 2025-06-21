@@ -13,16 +13,16 @@ import androidx.room.PrimaryKey
             onDelete = androidx.room.ForeignKey.CASCADE
         )
         ],
-    indices = [androidx.room.Index("categoryId")
+    indices = [androidx.room.Index("subcategoryCategoryId")
     ])
 data class SubcategoryEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "subcategoryId")
-    val subcategoryId: Int = 0,
+    val subcategoryId: Long = 0,
 
     @ColumnInfo(name = "subcategoryName")
     val subcategoryName: String,
 
     @ColumnInfo(name = "subcategoryCategoryId")
-    val subcategoryCategoryId: Int? = null
+    val subcategoryCategoryId: Long? = null
 )
