@@ -29,7 +29,7 @@ This property mirrors the zero-based budgeting method: all money is assigned a p
 <!-- LICENSE -->
 ## License
 
-Distributed under the GPL-3.0 license. 
+Distributed under the GPL-3.0 license. See `LICENSE.txt` for more information.
 
 <!-- OTHER REPOS -->
 ## Thanks to
