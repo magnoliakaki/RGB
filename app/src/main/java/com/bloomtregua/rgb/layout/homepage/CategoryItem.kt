@@ -1,0 +1,178 @@
+package com.bloomtregua.rgb.layout.homepage
+
+import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import com.bloomtregua.rgb.ui.theme.RGBTheme
+import com.bloomtregua.rgb.viewmodels.CategoriaUiModel
+
+@Preview(showBackground = true, name = "Item Categoria Singola")
+@Composable
+private fun PreviewCategoriaDettaglio() {
+    RGBTheme(dynamicColor = false)  {
+        Surface() {
+            CategoriaDettaglio(
+                categoria = CategoriaUiModel( // Fornisci dati di esempio
+                    categoryId = 1L,
+                    categoryName = "Supermercato",
+                    categoryAllAmount = 250.0,
+                    totaleSpeso = 120.50,
+                    totaleResiduo = 129.50,
+                    percentualeSpeso = 120.50 / 250.0, // Assicurati che il modello lo abbia
+                    categoryMacroCategoryId = 10L
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+    }
+}
+
+@Preview(showBackground = true, name = "Item Categoria - Nome Lungo")
+@Composable
+private fun PreviewCategoriaDettaglioNomeLungo() {
+    RGBTheme(dynamicColor = false)  {
+        Surface() {
+            CategoriaDettaglio(
+                categoria = CategoriaUiModel(
+                    categoryId = 2L,
+                    categoryName = "Affitto e Spese Condominiali Mensili della Casa al Mare",
+                    categoryAllAmount = 800.0,
+                    totaleSpeso = 800.0,
+                    totaleResiduo = 0.0,
+                    percentualeSpeso = 1.0,
+                    categoryMacroCategoryId = 11L
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Item Categoria - Spesa Eccessiva")
+@Composable
+private fun PreviewCategoriaDettaglioSpesaEccessiva() {
+    RGBTheme(dynamicColor = false)  {
+        Surface() {
+            CategoriaDettaglio(
+                categoria = CategoriaUiModel(
+                    categoryId = 3L,
+                    categoryName = "Ristoranti",
+                    categoryAllAmount = 150.0,
+                    totaleSpeso = 180.0, // Spesa > Budget
+                    totaleResiduo = -30.0,
+                    percentualeSpeso = 180.0 / 150.0,
+                    categoryMacroCategoryId = 12L
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable()
+fun CategoriaDettaglio(
+    categoria: CategoriaUiModel, // Passa l'oggetto dati
+    modifier: Modifier = Modifier
+) {
+    ConstraintLayout(modifier = modifier.padding(bottom = 8.dp)) { // Aggiungi padding tra gli elementi
+        val (NomeCategoria, TotaleResiduoCategoria, TotaleSpesoCategoria, TotaleCategoria, SpesoCategoria) = createRefs()
+
+        // Barra di progresso
+        Box(
+            Modifier
+                .background(Color(0.3f, 0.52f, 0.61f, 1.0f)) // Colore base della barra
+                .constrainAs(SpesoCategoria) {
+                    linkTo(parent.start, parent.end, bias = 0.0f) // Allinea a sinistra
+                    top.linkTo(parent.top, margin = 4.dp) // Leggero margine dall'alto
+                    width = Dimension.fillToConstraints // Occupa tutta la larghezza disponibile
+                    height = Dimension.value(11.dp) // Altezza fissa per la barra
+                }
+        ) {
+            val percentualeSpeso = categoria.percentualeSpeso.toFloat().coerceIn(0f, 1f)
+            val coloreSpeso = if (categoria.percentualeSpeso > 1.0f) Color.Red else Color(0.83f, 0.85f, 0.5f, 1.0f)
+
+            Box( // Barra che rappresenta la spesa effettiva
+                Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(percentualeSpeso) // La larghezza è la percentuale spesa
+                    .background(coloreSpeso) // Colore per la parte spesa
+            )
+        }
+
+        // 2. Nome Categoria
+        Text(
+            text = categoria.categoryName,
+            modifier = Modifier
+                .constrainAs(NomeCategoria) {
+                    top.linkTo(SpesoCategoria.bottom, margin = 6.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(TotaleSpesoCategoria.start, margin = 8.dp, goneMargin = 0.dp)
+                    width = Dimension.fillToConstraints
+                    height = Dimension.wrapContent
+                }
+            ,
+            style = LocalTextStyle.current.copy(color = Color.White, textAlign = TextAlign.Left, fontSize = 20.0.sp),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        Text(
+            text = "%.2f".format(categoria.totaleResiduo),
+            modifier = Modifier
+                .constrainAs(TotaleResiduoCategoria) {
+                    end.linkTo(parent.end)
+                    baseline.linkTo(NomeCategoria.baseline)
+                    width = Dimension.wrapContent
+                    height = Dimension.wrapContent
+                }
+            ,
+            style = LocalTextStyle.current.copy(color = Color.White, textAlign = TextAlign.Right, fontSize = 18.0.sp)
+        )
+
+        Text(
+            text = "%.2f".format(categoria.totaleSpeso),
+            modifier = Modifier
+                .constrainAs(TotaleSpesoCategoria) {
+                    end.linkTo(parent.end, margin = 120.dp)
+                    baseline.linkTo(NomeCategoria.baseline)
+                    width = Dimension.wrapContent
+                    height = Dimension.wrapContent
+                }
+            ,
+            style = LocalTextStyle.current.copy(color = Color.White, textAlign = TextAlign.Right, fontSize = 18.0.sp)
+        )
+
+        Text(
+            text = "%.2f".format(categoria.categoryAllAmount),
+            modifier = Modifier
+                .constrainAs(TotaleCategoria) {
+                    top.linkTo(NomeCategoria.bottom, margin = 2.dp) // Sotto NomeCategoria
+                    start.linkTo(parent.start) // Allineato a sinistra come NomeCategoria
+                    width = Dimension.wrapContent
+                    height = Dimension.wrapContent
+                }
+            ,
+            style = LocalTextStyle.current.copy(color = Color.White, textAlign = TextAlign.Left, fontSize = 12.0.sp, fontStyle = FontStyle.Italic)
+        )
+    }
+}
