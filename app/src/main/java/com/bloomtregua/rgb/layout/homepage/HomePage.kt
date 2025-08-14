@@ -1,9 +1,7 @@
 package com.bloomtregua.rgb.layout.homepage
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -14,12 +12,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bloomtregua.rgb.database.RGBDatabase
+import com.bloomtregua.rgb.ui.theme.BiasPercentageFromLeftSideM
+import com.bloomtregua.rgb.ui.theme.HeightPercentageToPageXS
+import com.bloomtregua.rgb.ui.theme.MarginS
+import com.bloomtregua.rgb.ui.theme.MarginXS
 import com.bloomtregua.rgb.ui.theme.RGBTheme
+import com.bloomtregua.rgb.ui.theme.WidthPercentageToPage
 import com.bloomtregua.rgb.viewmodels.CategoriesViewModel
 import com.bloomtregua.rgb.viewmodels.CategoriesViewModelFactory
 
@@ -54,10 +56,10 @@ fun HomePage(modifier: Modifier = Modifier) {
         val (DettaglioProssimeTransazioni, ListaCategorieRef, LoadingIndicatorRef, BarraNavigazione, RiquadroConto, ProssimeTransazioni) = createRefs()
 
         RiquadroConto(Modifier.constrainAs(RiquadroConto) {
-            linkTo(parent.start, parent.end, bias = 0.52f)
+            linkTo(parent.start, parent.end, bias = BiasPercentageFromLeftSideM)
             linkTo(parent.top, parent.bottom, bias = 0.07f)
-            width = Dimension.percent(0.85f)
-            height = Dimension.percent(0.05f)
+            width = Dimension.percent(WidthPercentageToPage)
+            height = Dimension.percent(HeightPercentageToPageXS)
         })
 
         if (isLoading) {
@@ -67,11 +69,11 @@ fun HomePage(modifier: Modifier = Modifier) {
         } else {
             LazyColumn(
                 modifier = Modifier.constrainAs(ListaCategorieRef) {
-                    top.linkTo(RiquadroConto.bottom, margin = 32.dp)
-                    bottom.linkTo(ProssimeTransazioni.top, margin = 16.dp)
+                    top.linkTo(RiquadroConto.bottom, margin = MarginS)
+                    bottom.linkTo(ProssimeTransazioni.top, margin = MarginXS)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    width = Dimension.percent(0.85f)
+                    width = Dimension.percent(BiasPercentageFromLeftSideM)
                     height = Dimension.fillToConstraints
                 }
             ) {
@@ -88,23 +90,23 @@ fun HomePage(modifier: Modifier = Modifier) {
         }
 
         ProssimeTransazioni(Modifier.constrainAs(ProssimeTransazioni) {
-            linkTo(parent.start, parent.end, bias = 0.52f)
+            linkTo(parent.start, parent.end, bias = BiasPercentageFromLeftSideM)
             linkTo(parent.top, parent.bottom, bias = 0.68f)
-            width = Dimension.percent(0.85f)
-            height = Dimension.percent(0.04f)
+            width = Dimension.percent(WidthPercentageToPage)
+            height = Dimension.percent(HeightPercentageToPageXS)
         })
 
         DettaglioProssimeTransazioni(Modifier.constrainAs(DettaglioProssimeTransazioni) {
-            top.linkTo(ProssimeTransazioni.bottom, margin = 16.dp)
-            bottom.linkTo(BarraNavigazione.top, margin = 16.dp)
+            top.linkTo(ProssimeTransazioni.bottom, margin = MarginXS)
+            bottom.linkTo(BarraNavigazione.top, margin = MarginXS)
             start.linkTo(parent.start)
             end.linkTo(parent.end)
-            width = Dimension.percent(0.77f)
+            width = Dimension.percent(WidthPercentageToPage)
             height = Dimension.fillToConstraints
         })
 
         BarraNavigazione(Modifier.constrainAs(BarraNavigazione) {
-            linkTo(parent.start, parent.end, bias = 0.52f)
+            linkTo(parent.start, parent.end, bias = BiasPercentageFromLeftSideM)
             linkTo(parent.top, parent.bottom, bias = 0.91f)
             width = Dimension.percent(0.85f)
             height = Dimension.percent(0.05f)

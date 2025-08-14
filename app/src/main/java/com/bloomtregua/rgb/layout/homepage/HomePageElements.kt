@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.bloomtregua.rgb.R
-import com.bloomtregua.rgb.viewmodels.CategoriaUiModel
+import com.bloomtregua.rgb.ui.theme.HeightPercentageToPageM
 import com.bloomtregua.rgb.ui.theme.RGBTheme
 
 @Preview(showBackground = true, name = "Anteprima Riquadro Conto")
@@ -57,6 +57,20 @@ private fun PreviewBarraNavigazione() {
     }
 }
 
+@Preview(showBackground = true, name = "Anteprima Dettaglio Prossime Transazioni")
+@Composable
+private fun PreviewDettaglioProssimeTransazioni() {
+    RGBTheme(dynamicColor = false) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth() // Permetti a Surface di prendere la larghezza
+                .height(46.dp), // Altezza sufficiente per vedere qualcosa
+        ) {
+            DettaglioProssimeTransazioni(modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
 @Composable()
 fun DettaglioProssimeTransazioni(modifier: Modifier = Modifier) {
     ConstraintLayout(modifier = modifier) {
@@ -68,7 +82,7 @@ fun DettaglioProssimeTransazioni(modifier: Modifier = Modifier) {
                 linkTo(parent.start, parent.end, bias = 0.0f)
                 linkTo(parent.top, parent.bottom, bias = 0.5f)
                 width = Dimension.wrapContent
-                height = Dimension.percent(1.0f)
+                height = Dimension.percent(HeightPercentageToPageM)
             }, style = LocalTextStyle.current.copy(color = Color(1.0f, 1.0f, 1.0f, 1.0f), textAlign = TextAlign.Left, fontSize = 14.0.sp))
 
         Text("Altro", Modifier
@@ -76,7 +90,7 @@ fun DettaglioProssimeTransazioni(modifier: Modifier = Modifier) {
                 linkTo(parent.start, parent.end, bias = 0.28f)
                 linkTo(parent.top, parent.bottom, bias = 0.5f)
                 width = Dimension.wrapContent
-                height = Dimension.percent(1.0f)
+                height = Dimension.percent(HeightPercentageToPageM)
             }, style = LocalTextStyle.current.copy(color = Color(1.0f, 1.0f, 1.0f, 1.0f), textAlign = TextAlign.Left, fontSize = 14.0.sp))
 
         Text("Rata orecchini", Modifier
@@ -84,7 +98,7 @@ fun DettaglioProssimeTransazioni(modifier: Modifier = Modifier) {
                 linkTo(parent.start, parent.end, bias = 0.62f)
                 linkTo(parent.top, parent.bottom, bias = 0.5f)
                 width = Dimension.wrapContent
-                height = Dimension.percent(1.0f)
+                height = Dimension.percent(HeightPercentageToPageM)
             }, style = LocalTextStyle.current.copy(color = Color(1.0f, 1.0f, 1.0f, 1.0f), textAlign = TextAlign.Left, fontSize = 14.0.sp, fontStyle = FontStyle.Italic))
 
         Text("- 38.32", Modifier
@@ -92,7 +106,7 @@ fun DettaglioProssimeTransazioni(modifier: Modifier = Modifier) {
                 linkTo(parent.start, parent.end, bias = 1.0f)
                 linkTo(parent.top, parent.bottom, bias = 0.5f)
                 width = Dimension.wrapContent
-                height = Dimension.percent(1.0f)
+                height = Dimension.percent(HeightPercentageToPageM )
             }, style = LocalTextStyle.current.copy(color = Color(1.0f, 1.0f, 1.0f, 1.0f), textAlign = TextAlign.Right, fontSize = 14.0.sp))
 
     }
