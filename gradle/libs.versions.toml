@@ -2,6 +2,9 @@
 activityComposeVersion = "1.8.2"
 agp = "8.10.1"
 constraintlayoutCompose = "1.1.1"
+hiltAndroid = "2.51.1"
+hiltAndroidCompiler = "2.56.2"
+hiltNavigationCompose = "1.2.0"
 kotlin = "2.0.21"
 ksp = "2.0.21-1.0.26"
 lifecycleViewmodelCompose = "2.9.2"
@@ -23,7 +26,10 @@ lifecycleLivedataKtx = "2.9.2"
 androidx-activity-compose-v182 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

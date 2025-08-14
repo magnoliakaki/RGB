@@ -59,7 +59,7 @@ abstract class RGBDatabase : RoomDatabase() {
             Log.d("RGBDatabase", "return instance")
             return INSTANCE ?: synchronized(this) {
                 Log.d("RGBDatabase", "Database starting")
-                //context.deleteDatabase("rgb_database")      //TODO DA RIMUOVERE PRIMA DELLA PUBBLICAZIONE O DEI TEST EFFETTIVI SUL DB
+                context.deleteDatabase("rgb_database")      //TODO DA RIMUOVERE PRIMA DELLA PUBBLICAZIONE O DEI TEST EFFETTIVI SUL DB
                 val instance = Room.databaseBuilder(
                                 context.applicationContext,
                                 RGBDatabase::class.java,
@@ -215,11 +215,70 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
         )
     )
 
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryGroceries, // ID della categoria "Spesa"
+            transactionAmount = 25.50,
+            transactionDate = LocalDate.of(2024, 7, 15),
+            transactionDescription = "Spesa settimanale Esselunga",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categorySubscription, // ID della categoria "Abbonamenti"
+            transactionAmount = 9.99, // Spesa
+            transactionDate = LocalDate.of(2024, 7, 20),
+            transactionDescription = "Abbonamento Spotify Mensile",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryGroceries, // ID della categoria "Stipendio" (reddito)
+            transactionAmount = 85.62,
+            transactionDate = LocalDate.of(2024, 8, 2),
+            transactionDescription = "Spesa Coop",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryTripToPrague, // ID della categoria "Viaggio a Praga"
+            transactionAmount = 70.80, // Spesa (es. una rata per il viaggio o una spesa correlata)
+            transactionDate = LocalDate.of(2024, 7, 20),
+            transactionDescription = "Acconto hotel Praga",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryGroceries, // ID della categoria "Spesa"
+            transactionAmount = 5.20,
+            transactionDate = LocalDate.of(2024, 7, 22),
+            transactionDescription = "Caffè e brioche",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryGroceries, // ID della categoria "Spesa"
+            transactionAmount = 51.40,
+            transactionDate = LocalDate.of(2024, 6, 26),
+            transactionDescription = "Spesa Giugno 2025",
+            transactionSign = -1
+        )
+    )
     /*
     * Budget
      */
 
-    val budgetTest = budgetDao.insertBudget(BudgetEntity(
+    budgetDao.insertBudget(BudgetEntity(
             budgetName = "Test",
             budgetResetType = com.bloomtregua.rgb.database.budget.BudgetResetType.CATEGORY,
             budgetResetCategory = categoryIncome,

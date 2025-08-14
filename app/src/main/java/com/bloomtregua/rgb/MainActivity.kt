@@ -11,10 +11,12 @@ import com.bloomtregua.rgb.database.RGBDatabase
 import com.bloomtregua.rgb.database.prepopulateDatabase
 import com.bloomtregua.rgb.layout.homepage.HomePage
 import com.bloomtregua.rgb.ui.theme.RGBTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

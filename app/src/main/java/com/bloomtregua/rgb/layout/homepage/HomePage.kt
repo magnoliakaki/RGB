@@ -23,7 +23,7 @@ import com.bloomtregua.rgb.ui.theme.MarginXS
 import com.bloomtregua.rgb.ui.theme.RGBTheme
 import com.bloomtregua.rgb.ui.theme.WidthPercentageToPage
 import com.bloomtregua.rgb.viewmodels.CategoriesViewModel
-import com.bloomtregua.rgb.viewmodels.CategoriesViewModelFactory
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable()
 @Preview()
@@ -36,17 +36,10 @@ fun AndroidPreview_HomePage() {
 }
 
 @Composable()
-fun HomePage(modifier: Modifier = Modifier) {
-
-    val context = LocalContext.current
-    // Ottieni l'istanza del DAO qui
-    val dbRGB = RGBDatabase.getInstance(context.applicationContext) as RGBDatabase
-    val categoryDao = dbRGB.categoryDao()
-
-    // Crea il ViewModel usando la factory
-    val categoriesViewModel: CategoriesViewModel = viewModel(
-        factory = CategoriesViewModelFactory(categoryDao) // Passi il DAO creato localmente
-    )
+fun HomePage(
+    modifier: Modifier = Modifier,
+    categoriesViewModel: CategoriesViewModel = hiltViewModel()
+) {
 
     // Osserva lo StateFlow delle categorie dal ViewModel
     val categorieState by categoriesViewModel.categoriesUiModel.collectAsState()
