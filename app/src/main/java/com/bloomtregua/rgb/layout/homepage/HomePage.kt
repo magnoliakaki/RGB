@@ -66,7 +66,7 @@ fun HomePage(
                     bottom.linkTo(ProssimeTransazioni.top, margin = MarginXS)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                    width = Dimension.percent(BiasPercentageFromLeftSideM)
+                    width = Dimension.percent(WidthPercentageToPage)
                     height = Dimension.fillToConstraints
                 }
             ) {

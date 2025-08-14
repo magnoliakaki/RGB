@@ -1,17 +1,12 @@
 package com.bloomtregua.rgb.viewmodels
 
 import android.util.Log
-import androidx.compose.ui.unit.min
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bloomtregua.rgb.database.budget.BudgetDao
 import com.bloomtregua.rgb.database.budget.BudgetEntity
 import com.bloomtregua.rgb.database.budget.BudgetResetType
-import com.bloomtregua.rgb.database.categories.CategoryDao // Importa il tuo CategoryDao
-import com.bloomtregua.rgb.database.categories.CategoryEntity // Importa la tua Entity Category
-import com.bloomtregua.rgb.database.transactions.TransactionDao
+import com.bloomtregua.rgb.database.categories.CategoryEntity
 import com.bloomtregua.rgb.dipendenceinjection.CategoryRepository
-import com.bloomtregua.rgb.dipendenceinjection.DatabaseModule
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
