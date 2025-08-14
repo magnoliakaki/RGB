@@ -10,20 +10,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bloomtregua.rgb.database.RGBDatabase
-import com.bloomtregua.rgb.ui.theme.BiasPercentageFromLeftSideM
-import com.bloomtregua.rgb.ui.theme.HeightPercentageToPageXS
-import com.bloomtregua.rgb.ui.theme.MarginS
-import com.bloomtregua.rgb.ui.theme.MarginXS
-import com.bloomtregua.rgb.ui.theme.RGBTheme
-import com.bloomtregua.rgb.ui.theme.WidthPercentageToPage
-import com.bloomtregua.rgb.viewmodels.CategoriesViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.bloomtregua.rgb.ui.theme.BarHeightS
+import com.bloomtregua.rgb.ui.theme.MarginS
+import com.bloomtregua.rgb.ui.theme.MarginXXS
+import com.bloomtregua.rgb.ui.theme.PageTopBottomMargins
+import com.bloomtregua.rgb.ui.theme.PercentageForPageMid
+import com.bloomtregua.rgb.ui.theme.PercentageToPageWidth
+import com.bloomtregua.rgb.ui.theme.RGBTheme
+import com.bloomtregua.rgb.viewmodels.CategoriesViewModel
 
 @Composable()
 @Preview()
@@ -48,13 +46,35 @@ fun HomePage(
     ConstraintLayout(modifier = modifier) {
         val (DettaglioProssimeTransazioni, ListaCategorieRef, LoadingIndicatorRef, BarraNavigazione, RiquadroConto, ProssimeTransazioni) = createRefs()
 
+        // LINEE GUIDA VERTICALI
+        // margine da sinistra
+        val verticalLeftGuideline = createGuidelineFromStart(PercentageToPageWidth)
+        // margine da destra
+        val verticalRightGuideline = createGuidelineFromEnd(PercentageToPageWidth)
+        // centro del composable rispetto a sx/dx
+        val verticalCenterGuideLine = createGuidelineFromStart(PercentageForPageMid)
+
+        // LINEE GUIDA ORIZZONTALI
+        // margine dall'alto del composable
+        val horizontalTopLGuideLine = createGuidelineFromTop(PageTopBottomMargins)
+        // margine dal basso del composable
+        val horizontalBottomGuideLine = createGuidelineFromBottom(PageTopBottomMargins)
+        // centro del composable rispetto a top/bottom
+        val horizontalCenterGuideLine = createGuidelineFromTop(PercentageForPageMid)
+        // fine dell'elenco delle categorie
+        val horizontalBottomGuideLineCategorie = createGuidelineFromTop(0.69f)
+        // fine dell'elenco delle transazioni
+        val horizontalBottomGuideLineTransazioni = createGuidelineFromTop(0.85f)
+
         RiquadroConto(Modifier.constrainAs(RiquadroConto) {
-            linkTo(parent.start, parent.end, bias = BiasPercentageFromLeftSideM)
-            linkTo(parent.top, parent.bottom, bias = 0.07f)
-            width = Dimension.percent(WidthPercentageToPage)
-            height = Dimension.percent(HeightPercentageToPageXS)
+            top.linkTo(horizontalTopLGuideLine)
+            start.linkTo(verticalLeftGuideline)
+            end.linkTo(verticalRightGuideline)
+            width = Dimension.fillToConstraints
+            height = Dimension.percent(BarHeightS)
         })
 
+        // Elenco categorie
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.constrainAs(LoadingIndicatorRef) {
                 centerTo(parent)
@@ -63,10 +83,10 @@ fun HomePage(
             LazyColumn(
                 modifier = Modifier.constrainAs(ListaCategorieRef) {
                     top.linkTo(RiquadroConto.bottom, margin = MarginS)
-                    bottom.linkTo(ProssimeTransazioni.top, margin = MarginXS)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    width = Dimension.percent(WidthPercentageToPage)
+                    bottom.linkTo(horizontalBottomGuideLineCategorie)
+                    start.linkTo(verticalLeftGuideline)
+                    end.linkTo(verticalRightGuideline)
+                    width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
                 }
             ) {
@@ -83,26 +103,29 @@ fun HomePage(
         }
 
         ProssimeTransazioni(Modifier.constrainAs(ProssimeTransazioni) {
-            linkTo(parent.start, parent.end, bias = BiasPercentageFromLeftSideM)
-            linkTo(parent.top, parent.bottom, bias = 0.68f)
-            width = Dimension.percent(WidthPercentageToPage)
-            height = Dimension.percent(HeightPercentageToPageXS)
+            start.linkTo(verticalLeftGuideline)
+            end.linkTo(verticalRightGuideline)
+            top.linkTo(horizontalBottomGuideLineCategorie, margin = MarginXXS)
+            width = Dimension.fillToConstraints
+            height = Dimension.percent(0.05f)
         })
 
         DettaglioProssimeTransazioni(Modifier.constrainAs(DettaglioProssimeTransazioni) {
-            top.linkTo(ProssimeTransazioni.bottom, margin = MarginXS)
-            bottom.linkTo(BarraNavigazione.top, margin = MarginXS)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-            width = Dimension.percent(WidthPercentageToPage)
+            top.linkTo(ProssimeTransazioni.bottom, margin = MarginXXS)
+            bottom.linkTo(horizontalBottomGuideLineTransazioni)
+            start.linkTo(verticalLeftGuideline)
+            end.linkTo(verticalRightGuideline)
+            width = Dimension.fillToConstraints
             height = Dimension.fillToConstraints
         })
 
         BarraNavigazione(Modifier.constrainAs(BarraNavigazione) {
-            linkTo(parent.start, parent.end, bias = BiasPercentageFromLeftSideM)
-            linkTo(parent.top, parent.bottom, bias = 0.91f)
-            width = Dimension.percent(0.85f)
-            height = Dimension.percent(0.05f)
+            start.linkTo(verticalLeftGuideline)
+            end.linkTo(verticalRightGuideline)
+            top.linkTo(horizontalBottomGuideLineTransazioni)
+            bottom.linkTo(horizontalBottomGuideLine)
+            width = Dimension.fillToConstraints
+            height = Dimension.percent(BarHeightS)
         })
     }
 }

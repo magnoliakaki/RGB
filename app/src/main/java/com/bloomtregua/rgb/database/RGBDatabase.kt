@@ -177,6 +177,17 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
         )
     )
 
+    val categoryGroceries2 = categoryDao.insertCategory(CategoryEntity(
+        categoryName = "Casa",
+        categoryAccountId = accountHype,
+        categoryAllocationId = allocationPocketMoney,
+        categoryMacroCategoryId = macroCategoryNeeds,
+        categoryAllFrequencyMonths = 1,
+        categoryAllDefaultAmount = 100.00,
+        categoryAllAmount = 150.00,
+        )
+    )
+
     val categorySavings = categoryDao.insertCategory(CategoryEntity(
             categoryName = "Risparmi",
             categoryAccountId = accountBBVA,
@@ -184,6 +195,16 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
             categoryMacroCategoryId = macroCategorySavings,
             categoryAllFrequencyMonths = 1,
             categoryAllAmount = 150.00
+        )
+    )
+
+    val categorySavings2 = categoryDao.insertCategory(CategoryEntity(
+            categoryName = "Tecnologia",
+            categoryAccountId = accountBBVA,
+            categoryAllocationId = allocationOngoing,
+            categoryMacroCategoryId = macroCategorySavings,
+            categoryAllFrequencyMonths = 1,
+            categoryAllAmount = 150.10
         )
     )
 
@@ -207,6 +228,25 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
             categoryAllFrequencyMonths = 1
         )
     )
+
+    val categorySubscription2 = categoryDao.insertCategory(CategoryEntity(
+            categoryName = "Animali",
+            categoryAccountId = accountHype,
+            categoryAllocationId = allocationTransactions,
+            categoryMacroCategoryId = macroCategorySubs,
+            categoryAllFrequencyMonths = 1
+        )
+    )
+
+    val categorySubscription3 = categoryDao.insertCategory(CategoryEntity(
+            categoryName = "Netflix",
+            categoryAccountId = accountHype,
+            categoryAllocationId = allocationTransactions,
+            categoryMacroCategoryId = macroCategorySubs,
+            categoryAllFrequencyMonths = 1
+        )
+    )
+
 
     val categoryIncome = categoryDao.insertCategory(CategoryEntity(
             categoryName = "Stipendio",
