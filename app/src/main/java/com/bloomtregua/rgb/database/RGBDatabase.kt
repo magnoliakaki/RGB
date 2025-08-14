@@ -157,8 +157,20 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
     )
 
     val accountBBVA = accountDao.insertAccount(AccountEntity(
-        accountName = "BBVA",
-        accountType = AccountType.SAVINGS
+            accountName = "BBVA",
+            accountType = AccountType.SAVINGS
+        )
+    )
+
+    accountDao.insertAccount(AccountEntity(
+            accountName = "Banco dei paschi di Siena della città di Firenze",
+            accountType = AccountType.SAVINGS
+        )
+    )
+
+    accountDao.insertAccount(AccountEntity(
+        accountName = "Cassa di Risparmio di Bologna",
+        accountType = AccountType.CHECKING
     )
     )
 

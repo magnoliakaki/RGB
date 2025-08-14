@@ -27,4 +27,7 @@ interface CategoryDao {
 
     @Query("SELECT * FROM categories where categoryIncome = false")
     fun getCategorySolaUscita(): Flow<List<CategoryEntity>>
+
+    @Query("SELECT * FROM categories where categoryIncome = false and categoryAccountId = :accoundID")
+    fun getCategorySolaUscitaByAccount(accoundID: Long): Flow<List<CategoryEntity>>
 }

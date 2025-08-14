@@ -1,4 +1,4 @@
-package com.bloomtregua.rgb.dipendenceinjection
+package com.bloomtregua.rgb.di
 
 import com.bloomtregua.rgb.database.transactions.TransactionDao
 import com.bloomtregua.rgb.database.transactions.TransactionEntity
@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 interface TransactionRepository {
     fun getAllTransactions(): Flow<List<TransactionEntity>>
-    suspend fun getTransactionById(transactionId: Int): Flow<TransactionEntity>?
+    suspend fun getTransactionById(transactionId: Int): Flow<TransactionEntity>
     suspend fun insertTransaction(transaction: TransactionEntity)
     suspend fun updateTransaction(transaction: TransactionEntity)
 }
@@ -21,7 +21,7 @@ class TransactionRepositoryImpl @Inject constructor(
         return transactionDao.getAllTransactions()
     }
 
-    override suspend fun getTransactionById(transactionId: Int): Flow<TransactionEntity>? {
+    override suspend fun getTransactionById(transactionId: Int): Flow<TransactionEntity> {
         return transactionDao.getTransactionById(transactionId)
     }
 

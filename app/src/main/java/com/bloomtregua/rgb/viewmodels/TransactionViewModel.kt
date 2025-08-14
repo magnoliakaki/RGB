@@ -3,7 +3,7 @@ package com.bloomtregua.rgb.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bloomtregua.rgb.database.transactions.TransactionEntity
-import com.bloomtregua.rgb.dipendenceinjection.TransactionRepository
+import com.bloomtregua.rgb.di.TransactionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

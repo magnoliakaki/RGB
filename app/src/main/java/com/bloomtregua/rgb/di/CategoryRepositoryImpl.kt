@@ -1,4 +1,4 @@
-package com.bloomtregua.rgb.dipendenceinjection
+package com.bloomtregua.rgb.di
 
 import com.bloomtregua.rgb.database.budget.BudgetDao
 import com.bloomtregua.rgb.database.budget.BudgetEntity
@@ -12,6 +12,7 @@ import javax.inject.Singleton
 
 interface CategoryRepository {
     fun getCategorySolaUscita(): Flow<List<CategoryEntity>>
+    fun getCategorySolaUscitaByAccount(accountId: Long): Flow<List<CategoryEntity>>
     suspend fun getBudgetSettings(): BudgetEntity?
     suspend fun getLastTransactionDateByCategoryId(categoryId: Long): LocalDate?
     suspend fun getMinTransactionDateByCategoryId(categoryId: Long): LocalDate?
@@ -27,6 +28,10 @@ class CategoryRepositoryImpl @Inject constructor(
 
     override fun getCategorySolaUscita(): Flow<List<CategoryEntity>> {
         return categoryDao.getCategorySolaUscita()
+    }
+
+    override fun getCategorySolaUscitaByAccount(accountId: Long): Flow<List<CategoryEntity>> {
+        return categoryDao.getCategorySolaUscitaByAccount(accountId)
     }
 
     override suspend fun getBudgetSettings(): BudgetEntity? {

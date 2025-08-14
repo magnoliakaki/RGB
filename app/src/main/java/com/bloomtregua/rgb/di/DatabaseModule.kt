@@ -1,8 +1,9 @@
-package com.bloomtregua.rgb.dipendenceinjection
+package com.bloomtregua.rgb.di
 
 import android.content.Context
 import androidx.room.Room
 import com.bloomtregua.rgb.database.RGBDatabase
+import com.bloomtregua.rgb.database.accounts.AccountDao
 import com.bloomtregua.rgb.database.budget.BudgetDao
 import com.bloomtregua.rgb.database.categories.CategoryDao
 import com.bloomtregua.rgb.database.transactions.TransactionDao
@@ -27,23 +28,28 @@ object DatabaseModule {
         )
             // Aggiungi qui i tuoi callback o strategie di migrazione se necessario
             // .addCallback(RGBDatabase.DatabaseCallback( ... )) // Se avevi un callback per il prepopolamento
-            .fallbackToDestructiveMigration() // ATTENZIONE: per lo sviluppo. Per produzione, implementa migrazioni corrette.
+            .fallbackToDestructiveMigration(false) // ATTENZIONE: per lo sviluppo. Per produzione, implementa migrazioni corrette.
             .build()
     }
 
     @Provides
     fun provideCategoryDao(database: RGBDatabase): CategoryDao {
-        return database.categoryDao() // Assumendo che RGBDatabase abbia un metodo categoryDao()
+        return database.categoryDao()
     }
 
     @Provides
     fun provideBudgetDao(database: RGBDatabase): BudgetDao {
-        return database.budgetDao() // Assumendo che RGBDatabase abbia un metodo budgetDao()
+        return database.budgetDao()
     }
 
     @Provides
     fun provideTransactionDao(database: RGBDatabase): TransactionDao {
-        return database.transactionDao() // Assumendo che RGBDatabase abbia un metodo transactionDao()
+        return database.transactionDao()
+    }
+
+    @Provides
+    fun provideAccountDao(database: RGBDatabase): AccountDao {
+        return database.accountDao()
     }
 }
 

@@ -1,13 +1,10 @@
 package com.bloomtregua.rgb.layout.homepage
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -95,13 +92,13 @@ fun CategoriaDettaglio(
     modifier: Modifier = Modifier
 ) {
     ConstraintLayout(modifier = modifier.padding(bottom = 8.dp)) { // Aggiungi padding tra gli elementi
-        val (NomeCategoria, TotaleResiduoCategoria, TotaleSpesoCategoria, TotaleCategoria, SpesoCategoria) = createRefs()
+        val (nomeCategoria, totaleResiduoCategoria, totaleSpesoCategoria, totaleCategoria, spesoCategoria) = createRefs()
 
         // Barra di progresso
         Box(
             Modifier
                 .background(Color(0.3f, 0.52f, 0.61f, 1.0f)) // Colore base della barra
-                .constrainAs(SpesoCategoria) {
+                .constrainAs(spesoCategoria) {
                     linkTo(parent.start, parent.end, bias = 0.0f) // Allinea a sinistra
                     top.linkTo(parent.top, margin = 4.dp) // Leggero margine dall'alto
                     width = Dimension.fillToConstraints // Occupa tutta la larghezza disponibile
@@ -123,10 +120,10 @@ fun CategoriaDettaglio(
         Text(
             text = categoria.categoryName,
             modifier = Modifier
-                .constrainAs(NomeCategoria) {
-                    top.linkTo(SpesoCategoria.bottom, margin = 6.dp)
+                .constrainAs(nomeCategoria) {
+                    top.linkTo(spesoCategoria.bottom, margin = 6.dp)
                     start.linkTo(parent.start)
-                    end.linkTo(TotaleSpesoCategoria.start, margin = 8.dp, goneMargin = 0.dp)
+                    end.linkTo(totaleSpesoCategoria.start, margin = 8.dp, goneMargin = 0.dp)
                     width = Dimension.fillToConstraints
                     height = Dimension.wrapContent
                 }
@@ -139,9 +136,9 @@ fun CategoriaDettaglio(
         Text(
             text = "%.2f".format(categoria.totaleResiduo),
             modifier = Modifier
-                .constrainAs(TotaleResiduoCategoria) {
+                .constrainAs(totaleResiduoCategoria) {
                     end.linkTo(parent.end)
-                    baseline.linkTo(NomeCategoria.baseline)
+                    baseline.linkTo(nomeCategoria.baseline)
                     width = Dimension.wrapContent
                     height = Dimension.wrapContent
                 }
@@ -152,9 +149,9 @@ fun CategoriaDettaglio(
         Text(
             text = "%.2f".format(categoria.totaleSpeso),
             modifier = Modifier
-                .constrainAs(TotaleSpesoCategoria) {
+                .constrainAs(totaleSpesoCategoria) {
                     end.linkTo(parent.end, margin = 120.dp)
-                    baseline.linkTo(NomeCategoria.baseline)
+                    baseline.linkTo(nomeCategoria.baseline)
                     width = Dimension.wrapContent
                     height = Dimension.wrapContent
                 }
@@ -165,8 +162,8 @@ fun CategoriaDettaglio(
         Text(
             text = "%.2f".format(categoria.categoryAllAmount),
             modifier = Modifier
-                .constrainAs(TotaleCategoria) {
-                    top.linkTo(NomeCategoria.bottom, margin = 2.dp) // Sotto NomeCategoria
+                .constrainAs(totaleCategoria) {
+                    top.linkTo(nomeCategoria.bottom, margin = 2.dp) // Sotto NomeCategoria
                     start.linkTo(parent.start) // Allineato a sinistra come NomeCategoria
                     width = Dimension.wrapContent
                     height = Dimension.wrapContent
