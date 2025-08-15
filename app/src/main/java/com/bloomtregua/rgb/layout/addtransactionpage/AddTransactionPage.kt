@@ -1,18 +1,17 @@
 package com.bloomtregua.rgb.layout.addtransactionpage
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.bloomtregua.rgb.layout.calculator.CalculatorScreen
+import com.bloomtregua.rgb.ui.theme.PageTopBottomMargins
+import com.bloomtregua.rgb.ui.theme.PercentageForPageMid
+import com.bloomtregua.rgb.ui.theme.PercentageToPageWidth
 import com.bloomtregua.rgb.ui.theme.RGBTheme
 import com.bloomtregua.rgb.viewmodels.TransactionsViewModel
 
@@ -27,18 +26,52 @@ fun AddTrasactionPagePreview() {
 }
 
 @Composable()
-fun  AddTransactionPage(modifier: Modifier = Modifier,
-                       transactionsViewModel: TransactionsViewModel = hiltViewModel()
+fun AddTransactionPage(
+    modifier: Modifier = Modifier,
+    transactionsViewModel: TransactionsViewModel = hiltViewModel()
 ) {
-// ConstraintLayout itself is not an M3 component, but it hosts M3 components.
-    // The background here will come from the parent Surface, or you can set one.
-    ConstraintLayout(
-        modifier = modifier
-            .fillMaxSize()
-            // Example: If you want this specific page to have a different background
-            // from the main theme's background, you can set it here.
-            // .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(16.dp) // Example padding
-    ){}
+    ConstraintLayout(modifier = modifier) {
+        val (calculatorRef, transactionInsertBoxRef) = createRefs()
+
+        // LINEE GUIDA VERTICALI
+        // margine da sinistra
+        val verticalLeftGuideline = createGuidelineFromStart(PercentageToPageWidth)
+        // margine da destra
+        val verticalRightGuideline = createGuidelineFromEnd(PercentageToPageWidth)
+        // centro del composable rispetto a sx/dx
+        val verticalCenterGuideLine = createGuidelineFromStart(PercentageForPageMid)
+
+        // LINEE GUIDA ORIZZONTALI
+        // margine dall'alto del composable
+        val horizontalTopLGuideLine = createGuidelineFromTop(PageTopBottomMargins)
+        // margine dal basso del composable
+        val horizontalBottomGuideLine = createGuidelineFromBottom(PageTopBottomMargins)
+        // centro del composable rispetto a top/bottom
+        val horizontalCenterGuideLine = createGuidelineFromTop(PercentageForPageMid)
+
+
+        CalculatorScreen(
+            modifier = Modifier
+                .constrainAs(calculatorRef)
+                {
+                top.linkTo(horizontalTopLGuideLine)
+                start.linkTo(verticalLeftGuideline)
+                end.linkTo(verticalRightGuideline)
+                bottom.linkTo(transactionInsertBoxRef.top)
+                height = Dimension.fillToConstraints
+                width = Dimension.fillToConstraints
+            }
+        )
+
+        TransactionInsertBox(modifier = Modifier.constrainAs(transactionInsertBoxRef) {
+                start.linkTo(verticalLeftGuideline)
+                end.linkTo(verticalRightGuideline)
+                top.linkTo(calculatorRef.bottom)
+                bottom.linkTo(horizontalBottomGuideLine)
+                height = Dimension.fillToConstraints
+                width = Dimension.fillToConstraints
+            }
+        )
+    }
 }
 

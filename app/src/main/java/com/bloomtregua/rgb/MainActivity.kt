@@ -11,6 +11,8 @@ import androidx.lifecycle.lifecycleScope
 import com.bloomtregua.rgb.database.RGBDatabase
 import com.bloomtregua.rgb.database.prepopulateDatabase
 import com.bloomtregua.rgb.di.UserPreferencesRepository
+import com.bloomtregua.rgb.layout.addtransactionpage.AddTransactionPage
+import com.bloomtregua.rgb.layout.calculator.CalculatorScreen
 import com.bloomtregua.rgb.layout.homepage.HomePage
 import com.bloomtregua.rgb.ui.theme.RGBTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,7 +41,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             RGBTheme(dynamicColor = false)  {
                 Surface() {
-                    HomePage(modifier = Modifier.fillMaxSize())
+                    AddTransactionPage()
+                    //HomePage(modifier = Modifier.fillMaxSize())
                 }
             }
         }
