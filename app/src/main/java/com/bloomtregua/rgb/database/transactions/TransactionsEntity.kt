@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import com.bloomtregua.rgb.database.categories.CategoryEntity
 import com.bloomtregua.rgb.database.categories.SubcategoryEntity
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity(tableName = "transactions",
     foreignKeys = [
@@ -29,7 +30,7 @@ import java.time.LocalDate
         )
     ],
     indices = [
-        androidx.room.Index("transactionCategoryId")
+        androidx.room.Index("transactionCategoryId"), androidx.room.Index("transactionSubCategoryId")
 ])
 data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
@@ -41,6 +42,9 @@ data class TransactionEntity(
 
     @ColumnInfo(name = "transactionDate")
     val transactionDate: LocalDate = LocalDate.now(),
+
+    @ColumnInfo(name = "transactionTimestamp") // NUOVO CAMPO per gestire oltre alla data anche l'ora di inserimento
+    val transactionTimestamp: LocalDateTime = LocalDateTime.now(),
 
     @ColumnInfo(name = "transactionSign")       // Indica se è un ingresso o una uscita di soldi. -1 uscita, 1 entrata
     val transactionSign: Int = -1,

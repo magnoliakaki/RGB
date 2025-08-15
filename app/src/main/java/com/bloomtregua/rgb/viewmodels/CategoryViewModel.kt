@@ -41,11 +41,10 @@ data class CategoriaUiModel(
 fun CategoryEntity.toCategoriaUiModel(speso: Double): CategoriaUiModel {
     val budget = (this.categoryAllAmount ?: 0.0).toDouble()
 
-    var percentuale = 0.0
-    if (budget == 0.0 && speso > 0) {
-        percentuale = 1.1
+    val percentuale: Double = if (budget == 0.0 && speso > 0) {
+        1.1
     } else {
-        percentuale = (speso / budget)
+        (speso / budget)
     }
     return CategoriaUiModel(
         categoryId = this.categoryId,
@@ -154,22 +153,26 @@ class CategoriesViewModel @Inject constructor(
                 val categoryId : Long = budget.budgetResetCategory ?: 0L
                 val subCategoryId : Long = budget.budgetResetSubCategory ?: 0L
 
-                val lastTransactionDateForResetCategory: LocalDate? = if (budget.budgetResetSubCategory == null) {
-                    categoryRepository.getLastTransactionDateByCategoryId(categoryId)
+                val lastTransactionTimestampForResetCategory = if (budget.budgetResetSubCategory == null) {
+                    categoryRepository.getLastTransactionTimestampByCategoryId(categoryId)
                 } else {
-                    categoryRepository.getLastTransactionDateBySubCategoryId(subCategoryId)
+                    categoryRepository.getLastTransactionTimestampBySubCategoryId(subCategoryId)
                 }
 
-                val startDate = if (lastTransactionDateForResetCategory == null) {
-                    categoryRepository.getMinTransactionDateByCategoryId(targetCategoryId)  // Se è null prendo tutte le transazioni della mia categoria
+                Log.d("ViewModelStartDate", "Budget CATEGORY reset per category $targetCategoryId. lastTransactionDateForResetCategory calcolata: $lastTransactionTimestampForResetCategory")
+
+                val startDate = if (lastTransactionTimestampForResetCategory == null) {
+                    categoryRepository.getMinTransactionTimestampByCategoryId(targetCategoryId)  // Se è null prendo tutte le transazioni della mia categoria
                 } else {
-                    lastTransactionDateForResetCategory.plusDays(1)
+                    lastTransactionTimestampForResetCategory.plus(1, java.time.temporal.ChronoUnit.SECONDS) // Prendo tutto quello inserito subito dopo la transazione di reset
                 }
+
+                Log.d("ViewModelStartDate", "Budget CATEGORY reset per category $targetCategoryId. StartDate calcolata: $startDate")
 
                 if (startDate == null) {
                     return 0.0
                 } else {
-                    categoryRepository.getSumTransactionsFromDateByCategoryId(targetCategoryId, startDate)
+                    categoryRepository.getSumTransactionsFromTimestampByCategoryId(targetCategoryId, startDate)
                 }
             }
             BudgetResetType.DATE -> {
@@ -184,7 +187,6 @@ class CategoriesViewModel @Inject constructor(
                 val currentMonthValue = currentDate.monthValue // Usa monthValue per intero 1-12
                 val currentYear = currentDate.year
 
-                // Valida resetDay
                 if (resetDay < 1 || resetDay > 31) {
                     Log.e("ViewModel", "budgetResetDay ($resetDay) non valido per budget ${budget.budgetId}")
                     return 0.0
@@ -194,9 +196,7 @@ class CategoriesViewModel @Inject constructor(
                     val dayForCurrentMonth = min(resetDay, currentDate.month.length(currentDate.isLeapYear))
                     calculatedStartDate = LocalDate.of(currentYear, currentMonthValue, dayForCurrentMonth)
                 } else {
-                    // La startDate è il resetDay del mese precedente.
                     val previousMonthDate = currentDate.minusMonths(1)
-                    // Assicurati che il giorno sia valido per il mese precedente
                     val dayForPreviousMonth = min(resetDay, previousMonthDate.month.length(previousMonthDate.isLeapYear))
                     calculatedStartDate = LocalDate.of(previousMonthDate.year, previousMonthDate.monthValue, dayForPreviousMonth)
                 }
