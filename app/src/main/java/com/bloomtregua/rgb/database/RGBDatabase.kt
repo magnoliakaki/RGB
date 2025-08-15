@@ -259,6 +259,35 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
         )
     )
 
+    val categoryExtra = categoryDao.insertCategory(CategoryEntity(
+            categoryName = "Extra",
+            categoryAccountId = accountHype,
+            categoryAllocationId = allocationTransactions,
+            categoryMacroCategoryId = macroCategorySubs,
+            categoryAllFrequencyMonths = 1
+        )
+    )
+
+    subcategoryDao.insertSubcategory(
+        SubcategoryEntity(
+            subcategoryName = "Videogiochi",
+            subcategoryCategoryId = categoryExtra
+        )
+    )
+
+    val subCategoryDaTavola = subcategoryDao.insertSubcategory(
+        SubcategoryEntity(
+            subcategoryName = "Giochi da tavolo",
+            subcategoryCategoryId = categoryExtra
+        )
+    )
+
+    subcategoryDao.insertSubcategory(
+        SubcategoryEntity(
+            subcategoryName = "Steam/Epic Games",
+            subcategoryCategoryId = categoryExtra
+        )
+    )
 
     val categoryIncome = categoryDao.insertCategory(CategoryEntity(
             categoryName = "Stipendio",
@@ -326,6 +355,43 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
             transactionSign = -1
         )
     )
+
+    // TEST stipendio per reset in categoria o sottocategoria
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryIncome,
+            transactionSubCategoryId = null,
+            transactionAmount = 1000.0,
+            transactionDate = LocalDate.of(2024, 7, 20),
+            transactionDescription = "Stipendo Luglio 2025",
+            transactionSign = -1
+        )
+    )
+
+    // TEST stipendio per reset in categoria o sottocategoria
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryIncome,
+            transactionSubCategoryId = null,
+            transactionAmount = 1000.0,
+            transactionDate = LocalDate.of(2024, 6, 28),
+            transactionDescription = "Stipendo Giugno 2025",
+            transactionSign = -1
+        )
+    )
+
+    // TEST stipendio per reset in categoria o sottocategoria
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = null,
+            transactionSubCategoryId = subCategoryDaTavola,
+            transactionAmount = 1000.0,
+            transactionDate = LocalDate.of(2024, 6, 28),
+            transactionDescription = "Stipendo Giugno 2025",
+            transactionSign = -1
+        )
+    )
+
     /*
     * Budget
      */

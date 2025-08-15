@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.bloomtregua.rgb.database.categories.CategoryEntity
+import com.bloomtregua.rgb.database.categories.SubcategoryEntity
 
 @Entity(tableName = "budgets",
     foreignKeys = [androidx.room.ForeignKey(
@@ -15,6 +16,11 @@ import com.bloomtregua.rgb.database.categories.CategoryEntity
         entity = CategoryEntity::class,
         parentColumns = ["categoryId"],
         childColumns = ["budgetResetCategory"],
+        onDelete = androidx.room.ForeignKey.SET_DEFAULT
+    ), androidx.room.ForeignKey(
+        entity = SubcategoryEntity::class,
+        parentColumns = ["subcategoryId"],
+        childColumns = ["budgetResetSubCategory"],
         onDelete = androidx.room.ForeignKey.SET_DEFAULT
     )],
     indices = [androidx.room.Index("budgetSurplusCategoryId"),
@@ -31,12 +37,17 @@ data class BudgetEntity(
     val budgetName: String,
 
     // CATEGORY o DATE --> NB: Questa tabella avrà  UN SOLO RECORD, che sarà l'indicazione di quando o come andare a resettare il budget.
+    // Nel caso CATEGORY: si può selezionare una categoria oppure una sottocategoria, che scatena il reset. L'altro valore sarà NULL.
     @ColumnInfo(name = "budgetResetType")
     val budgetResetType: BudgetResetType = BudgetResetType.DATE,
 
     // Categoria di entrata (transazione di entrata di quella specifica categoria) che scatena il reset. Valido solo se il campo sopra vale CATEGORY
     @ColumnInfo(name = "budgetResetCategory")
     val budgetResetCategory: Long? = null,
+
+    // Sottocategoria di entrata (transazione di entrata di quella specifica sottocategoria) che scatena il reset. Valido solo se il campo sopra vale CATEGORY
+    @ColumnInfo(name = "budgetResetSubCategory")
+    val budgetResetSubCategory: Long? = null,
 
     // Giorno di reset, vedi poi le logiche sotto per identificare il giorno esatto nel mese.
     @ColumnInfo(name = "budgetResetDay")

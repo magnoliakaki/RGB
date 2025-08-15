@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.bloomtregua.rgb.database.categories.CategoryEntity
+import com.bloomtregua.rgb.database.categories.SubcategoryEntity
 import java.time.LocalDate
 
 @Entity(tableName = "transactions",
@@ -12,6 +13,12 @@ import java.time.LocalDate
             entity = CategoryEntity::class,
             parentColumns = ["categoryId"],
             childColumns = ["transactionCategoryId"],
+            onDelete = androidx.room.ForeignKey.CASCADE
+        ),
+        androidx.room.ForeignKey(
+            entity = SubcategoryEntity::class,
+            parentColumns = ["subcategoryId"],
+            childColumns = ["transactionSubCategoryId"],
             onDelete = androidx.room.ForeignKey.CASCADE
         ),
     ],
@@ -36,5 +43,8 @@ data class TransactionEntity(
     val transactionAmount: Double = 0.0,
 
     @ColumnInfo(name = "transactionCategoryId")
-    val transactionCategoryId: Long? = null
+    val transactionCategoryId: Long? = null,
+
+    @ColumnInfo(name = "transactionSubCategoryId")
+    val transactionSubCategoryId: Long? = null
 )

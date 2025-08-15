@@ -34,6 +34,13 @@ interface TransactionDao {
     suspend fun getLastTransactionDateByCategoryId(categoryId: Long): LocalDate?
 
     @Query("""
+       SELECT MAX(transactionDate)
+       FROM transactions
+       WHERE transactionSubCategoryId = :subCategoryId
+   """)
+    suspend fun getLastTransactionDateBySubCategoryId(subCategoryId: Long): LocalDate?
+
+    @Query("""
        SELECT MIN(transactionDate)
        FROM transactions
        WHERE transactionCategoryId = :categoryId

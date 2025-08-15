@@ -35,11 +35,6 @@ class MainActivity : ComponentActivity() {
             prepopulateDatabase(database)
         }
 
-        // Imposta un ID di conto predefinito per i test, se non già impostato
-        lifecycleScope.launch {
-            userPreferencesRepository.setDefaultActiveAccountIdIfNeeded(1L)
-        }
-
         //TODO : IMPOSTARE I COLORI DI TUTTO IL PROGETTO (E LA GESTIONE DEI TEMI CHIARI / SCURI) E LE STRINGHE IN MANIERA "INTELLIGENTE" USANDO I UI.THEME
         setContent {
             RGBTheme(dynamicColor = false)  {

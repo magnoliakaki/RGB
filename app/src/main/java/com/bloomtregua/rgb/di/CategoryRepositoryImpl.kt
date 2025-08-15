@@ -15,6 +15,7 @@ interface CategoryRepository {
     fun getCategorySolaUscitaByAccount(accountId: Long): Flow<List<CategoryEntity>>
     suspend fun getBudgetSettings(): BudgetEntity?
     suspend fun getLastTransactionDateByCategoryId(categoryId: Long): LocalDate?
+    suspend fun getLastTransactionDateBySubCategoryId(subCategoryId: Long): LocalDate?
     suspend fun getMinTransactionDateByCategoryId(categoryId: Long): LocalDate?
     suspend fun getSumTransactionsFromDateByCategoryId(categoryId: Long, startDate: LocalDate): Double?
 }
@@ -40,6 +41,10 @@ class CategoryRepositoryImpl @Inject constructor(
 
     override suspend fun getLastTransactionDateByCategoryId(categoryId: Long): LocalDate? {
         return transactionDao.getLastTransactionDateByCategoryId(categoryId)
+    }
+
+    override suspend fun getLastTransactionDateBySubCategoryId(subCategoryId: Long): LocalDate? {
+        return transactionDao.getLastTransactionDateBySubCategoryId(subCategoryId)
     }
 
     override suspend fun getMinTransactionDateByCategoryId(categoryId: Long): LocalDate? {

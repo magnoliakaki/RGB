@@ -146,14 +146,19 @@ class CategoriesViewModel @Inject constructor(
 
         val calculatedSum = when (budget.budgetResetType) {
             BudgetResetType.CATEGORY -> {
-                val resetCategoryId = budget.budgetResetCategory
-                if (resetCategoryId == null) {
-                    Log.w("ViewModel", "budgetResetType è CATEGORY ma budgetResetCategory è null per budget ${budget.budgetId}")
+                if (budget.budgetResetCategory == null && budget.budgetResetSubCategory == null) {
+                    Log.w("ViewModel", "budgetResetType è CATEGORY ma budgetResetCategory e budgetResetSubCategory sono entrambi null per budget ${budget.budgetId}")
                     return 0.0
                 }
 
-                val lastTransactionDateForResetCategory =
-                    categoryRepository.getLastTransactionDateByCategoryId(resetCategoryId)
+                val categoryId : Long = budget.budgetResetCategory ?: 0L
+                val subCategoryId : Long = budget.budgetResetSubCategory ?: 0L
+
+                val lastTransactionDateForResetCategory: LocalDate? = if (budget.budgetResetSubCategory == null) {
+                    categoryRepository.getLastTransactionDateByCategoryId(categoryId)
+                } else {
+                    categoryRepository.getLastTransactionDateBySubCategoryId(subCategoryId)
+                }
 
                 val startDate = if (lastTransactionDateForResetCategory == null) {
                     categoryRepository.getMinTransactionDateByCategoryId(targetCategoryId)  // Se è null prendo tutte le transazioni della mia categoria
