@@ -25,6 +25,7 @@ import com.bloomtregua.rgb.database.categories.SubcategoryEntity
     )],
     indices = [androidx.room.Index("budgetSurplusCategoryId"),
         androidx.room.Index("budgetResetCategory"),
+        androidx.room.Index("budgetResetSubCategory"),
         androidx.room.Index(value = ["lock_column"], unique = true)
     ]
 )

@@ -26,6 +26,8 @@ import com.bloomtregua.rgb.database.transactions.TransactionDao
 import com.bloomtregua.rgb.database.transactions.TransactionEntity
 import java.time.LocalDate
 import android.util.Log
+import com.bloomtregua.rgb.database.transactions.TransactionConverters
+import java.time.LocalDateTime
 
 @Database(
     entities = [
@@ -264,13 +266,15 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
             categoryAccountId = accountHype,
             categoryAllocationId = allocationTransactions,
             categoryMacroCategoryId = macroCategorySubs,
-            categoryAllFrequencyMonths = 1
+            categoryAllFrequencyMonths = 1,
+            categoryAllAmount = 400.00,
+            categoryAllDefaultAmount = 400.00
         )
     )
 
-    subcategoryDao.insertSubcategory(
+    val subCategoryAmazon = subcategoryDao.insertSubcategory(
         SubcategoryEntity(
-            subcategoryName = "Videogiochi",
+            subcategoryName = "Amazon",
             subcategoryCategoryId = categoryExtra
         )
     )
@@ -282,17 +286,43 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
         )
     )
 
-    subcategoryDao.insertSubcategory(
+    val subCategorySteamEpic = subcategoryDao.insertSubcategory(
         SubcategoryEntity(
             subcategoryName = "Steam/Epic Games",
             subcategoryCategoryId = categoryExtra
         )
     )
 
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryExtra,
+            transactionSubCategoryId = subCategoryAmazon,
+            transactionAmount = 5.0,
+            transactionDate = LocalDate.of(2025, 8, 10),
+            transactionTimestamp = LocalDateTime.of(2025, 8, 10, 12, 51),
+            transactionDescription = "Amazon Fermacarte",
+            transactionSign = -1
+        )
+    )
+
     val categoryIncome = categoryDao.insertCategory(CategoryEntity(
-            categoryName = "Stipendio",
+            categoryName = "Entrate",
             categoryAccountId = accountHype,
             categoryIncome = true
+        )
+    )
+
+    val subCategoryStipendio = subcategoryDao.insertSubcategory(
+        SubcategoryEntity(
+            subcategoryName = "Stipendio",
+            subcategoryCategoryId = categoryIncome
+        )
+    )
+
+    val subCategoryTricount = subcategoryDao.insertSubcategory(
+        SubcategoryEntity(
+            subcategoryName = "Tricount",
+            subcategoryCategoryId = categoryIncome
         )
     )
 
@@ -300,7 +330,8 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
         TransactionEntity(
             transactionCategoryId = categoryGroceries, // ID della categoria "Spesa"
             transactionAmount = 25.50,
-            transactionDate = LocalDate.of(2024, 7, 15),
+            transactionDate = LocalDate.of(2025, 7, 15),
+            transactionTimestamp = LocalDateTime.of(2025, 7, 15, 23, 59), // Anno, Mese, Giorno, Ora, Minuto,
             transactionDescription = "Spesa settimanale Esselunga",
             transactionSign = -1
         )
@@ -310,7 +341,8 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
         TransactionEntity(
             transactionCategoryId = categorySubscription, // ID della categoria "Abbonamenti"
             transactionAmount = 9.99, // Spesa
-            transactionDate = LocalDate.of(2024, 7, 20),
+            transactionDate = LocalDate.of(2025, 7, 22),
+            transactionTimestamp = LocalDateTime.of(2025, 7, 22, 0, 0), // Anno, Mese, Giorno, Ora, Minuto,
             transactionDescription = "Abbonamento Spotify Mensile",
             transactionSign = -1
         )
@@ -320,7 +352,8 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
         TransactionEntity(
             transactionCategoryId = categoryGroceries, // ID della categoria "Stipendio" (reddito)
             transactionAmount = 85.62,
-            transactionDate = LocalDate.of(2024, 8, 2),
+            transactionDate = LocalDate.of(2025, 8, 2),
+            transactionTimestamp = LocalDateTime.of(2025, 8, 2, 0, 0), // Anno, Mese, Giorno, Ora, Minuto,
             transactionDescription = "Spesa Coop",
             transactionSign = -1
         )
@@ -330,28 +363,93 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
         TransactionEntity(
             transactionCategoryId = categoryTripToPrague, // ID della categoria "Viaggio a Praga"
             transactionAmount = 70.80, // Spesa (es. una rata per il viaggio o una spesa correlata)
-            transactionDate = LocalDate.of(2024, 7, 20),
+            transactionDate = LocalDate.of(2025, 7, 20),
+            transactionTimestamp = LocalDateTime.of(2025, 7, 20, 10, 59), // Anno, Mese, Giorno, Ora, Minuto,
             transactionDescription = "Acconto hotel Praga",
             transactionSign = -1
         )
     )
 
+    val orarioSpecificoTestSpesa1 = LocalDateTime.of(2025, 7, 20, 9, 18) // Anno, Mese, Giorno, Ora, Minuto
     transactionDao.insertTransaction(
         TransactionEntity(
             transactionCategoryId = categoryGroceries, // ID della categoria "Spesa"
             transactionAmount = 5.20,
-            transactionDate = LocalDate.of(2024, 7, 22),
+            transactionDate = LocalDate.of(2025, 7, 20),
+            transactionTimestamp = orarioSpecificoTestSpesa1,
             transactionDescription = "Caffè e brioche",
+            transactionSign = -1
+        )
+    )
+
+    val orarioSpecificoTestSpesa2 = LocalDateTime.of(2025, 7, 20, 18, 51) // Anno, Mese, Giorno, Ora, Minuto
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryGroceries, // ID della categoria "Spesa"
+            transactionAmount = 51.40,
+            transactionDate = LocalDate.of(2025, 7, 20),
+            transactionTimestamp = orarioSpecificoTestSpesa2,
+            transactionDescription = "Spesa Giugno 2025",
             transactionSign = -1
         )
     )
 
     transactionDao.insertTransaction(
         TransactionEntity(
-            transactionCategoryId = categoryGroceries, // ID della categoria "Spesa"
-            transactionAmount = 51.40,
-            transactionDate = LocalDate.of(2024, 6, 26),
-            transactionDescription = "Spesa Giugno 2025",
+            transactionCategoryId = categoryExtra,
+            transactionSubCategoryId = subCategoryAmazon,
+            transactionAmount = 40.0,
+            transactionDate = LocalDate.of(2025, 8, 10),
+            transactionTimestamp = LocalDateTime.of(2025, 8, 10, 12, 51),
+            transactionDescription = "Amazon Sedia Pieghevole",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryExtra,
+            transactionSubCategoryId = subCategoryAmazon,
+            transactionAmount = 25.0,
+            transactionDate = LocalDate.of(2025, 8, 10),
+            transactionTimestamp = LocalDateTime.of(2025, 8, 10, 12, 51),
+            transactionDescription = "Amazon Portaspezie",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryExtra,
+            transactionSubCategoryId = subCategorySteamEpic,
+            transactionAmount = 9.99,
+            transactionDate = LocalDate.of(2025, 8, 10),
+            transactionTimestamp = LocalDateTime.of(2025, 8, 10, 12, 51),
+            transactionDescription = "Steam Simulator",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryExtra,
+            transactionSubCategoryId = subCategorySteamEpic,
+            transactionAmount = 39.99,
+            transactionDate = LocalDate.of(2025, 8, 10),
+            transactionTimestamp = LocalDateTime.of(2025, 8, 12, 10, 51),
+            transactionDescription = "Epic Games 2.0 Simulator",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryExtra,
+            transactionSubCategoryId = subCategoryDaTavola,
+            transactionAmount = 45.50,
+            transactionDate = LocalDate.of(2025, 8, 10),
+            transactionTimestamp = LocalDateTime.of(2025, 8, 1, 12, 51),
+            transactionDescription = "Carcassonne",
             transactionSign = -1
         )
     )
@@ -360,9 +458,10 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
     transactionDao.insertTransaction(
         TransactionEntity(
             transactionCategoryId = categoryIncome,
-            transactionSubCategoryId = null,
+            transactionSubCategoryId = subCategoryStipendio,
             transactionAmount = 1000.0,
-            transactionDate = LocalDate.of(2024, 7, 20),
+            transactionDate = LocalDate.of(2025, 7, 20),
+            transactionTimestamp = LocalDateTime.of(2025, 7, 20, 12, 51),
             transactionDescription = "Stipendo Luglio 2025",
             transactionSign = -1
         )
@@ -372,9 +471,10 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
     transactionDao.insertTransaction(
         TransactionEntity(
             transactionCategoryId = categoryIncome,
-            transactionSubCategoryId = null,
+            transactionSubCategoryId = subCategoryStipendio,
             transactionAmount = 1000.0,
-            transactionDate = LocalDate.of(2024, 6, 28),
+            transactionDate = LocalDate.of(2025, 6, 28),
+            transactionTimestamp = LocalDateTime.of(2025, 6, 28, 0, 0),
             transactionDescription = "Stipendo Giugno 2025",
             transactionSign = -1
         )
@@ -383,11 +483,25 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
     // TEST stipendio per reset in categoria o sottocategoria
     transactionDao.insertTransaction(
         TransactionEntity(
-            transactionCategoryId = null,
-            transactionSubCategoryId = subCategoryDaTavola,
+            transactionCategoryId = categoryIncome,
+            transactionSubCategoryId = subCategoryTricount,
             transactionAmount = 1000.0,
-            transactionDate = LocalDate.of(2024, 6, 28),
-            transactionDescription = "Stipendo Giugno 2025",
+            transactionDate = LocalDate.of(2025, 6, 28),
+            transactionTimestamp = LocalDateTime.of(2025, 6, 28, 0, 0),
+            transactionDescription = "Aggiornamento Tricount Giugno 2025",
+            transactionSign = -1
+        )
+    )
+
+    // TEST stipendio per reset in categoria o sottocategoria
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryIncome,
+            transactionSubCategoryId = subCategoryTricount,
+            transactionAmount = 1000.0,
+            transactionDate = LocalDate.of(2025, 6, 28),
+            transactionTimestamp = LocalDateTime.of(2025, 7, 30, 14, 20),
+            transactionDescription = "Aggiornamento Tricount Luglio 2025",
             transactionSign = -1
         )
     )
@@ -396,12 +510,38 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
     * Budget
      */
 
-    budgetDao.insertBudget(BudgetEntity(
+    // TEST budget per reset in categoria
+//    budgetDao.insertBudget(BudgetEntity(
+//            budgetName = "Test",
+//            budgetResetType = com.bloomtregua.rgb.database.budget.BudgetResetType.CATEGORY,
+//            budgetResetCategory = categoryIncome,
+//            budgetAutomaticAllocation = false,
+//            budgetSurplusType = com.bloomtregua.rgb.database.budget.BudgetSurplusType.RESET,
+//        )
+//    )
+
+    // TEST budget per reset in sottocategoria
+    budgetDao.insertBudget(
+        BudgetEntity(
             budgetName = "Test",
             budgetResetType = com.bloomtregua.rgb.database.budget.BudgetResetType.CATEGORY,
-            budgetResetCategory = categoryIncome,
+            budgetResetCategory = null,
+            budgetResetSubCategory = subCategoryStipendio,
             budgetAutomaticAllocation = false,
             budgetSurplusType = com.bloomtregua.rgb.database.budget.BudgetSurplusType.RESET,
         )
     )
+
+    // TEST budget per reset sulla DATA
+//    budgetDao.insertBudget(
+//        BudgetEntity(
+//            budgetName = "Test",
+//            budgetResetType = com.bloomtregua.rgb.database.budget.BudgetResetType.DATE,
+//            budgetResetCategory = null,
+//            budgetResetSubCategory = null,
+//            budgetResetDay = 21,
+//            budgetAutomaticAllocation = false,
+//            budgetSurplusType = com.bloomtregua.rgb.database.budget.BudgetSurplusType.RESET,
+//        )
+//    )
 }
