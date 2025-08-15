@@ -21,6 +21,12 @@ import java.time.LocalDate
             childColumns = ["transactionSubCategoryId"],
             onDelete = androidx.room.ForeignKey.CASCADE
         ),
+        androidx.room.ForeignKey(
+            entity = CategoryEntity::class,
+            parentColumns = ["categoryId"],
+            childColumns = ["transactionMacroCategoryId"],
+            onDelete = androidx.room.ForeignKey.CASCADE
+        )
     ],
     indices = [
         androidx.room.Index("transactionCategoryId")
@@ -46,5 +52,8 @@ data class TransactionEntity(
     val transactionCategoryId: Long? = null,
 
     @ColumnInfo(name = "transactionSubCategoryId")
-    val transactionSubCategoryId: Long? = null
+    val transactionSubCategoryId: Long? = null,
+
+    @ColumnInfo(name = "transactionMacroCategoryId")
+    val transactionMacroCategoryId: Long? = null
 )
