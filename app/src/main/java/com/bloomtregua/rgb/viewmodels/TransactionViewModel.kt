@@ -1,15 +1,19 @@
 package com.bloomtregua.rgb.viewmodels
 
+import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bloomtregua.rgb.database.transactions.TransactionEntity
 import com.bloomtregua.rgb.di.TransactionRepository
+import com.bloomtregua.rgb.di.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -36,8 +40,17 @@ fun TransactionEntity.toTransactionUiModel(): TransactionUiModel {
 
 @HiltViewModel
 class TransactionsViewModel@Inject constructor(
-    private val transactionRepository: TransactionRepository
+    private val transactionRepository: TransactionRepository,
+    val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel(){
+
+    val preferredLocale: StateFlow<java.util.Locale?> = userPreferencesRepository.userLocaleFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = java.util.Locale.getDefault()
+        )
+
     // StateFlow per esporre la lista di transazioni alla UI in modo osservabile
     private val _transactionsUiModel = MutableStateFlow<List<TransactionUiModel>>(emptyList())
     val transactionsUiModel: StateFlow<List<TransactionUiModel>> =
