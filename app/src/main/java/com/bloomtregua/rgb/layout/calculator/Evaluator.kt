@@ -1,16 +1,28 @@
 package com.bloomtregua.rgb.layout.calculator
+import android.util.Log
 import java.util.Stack
+import kotlin.math.roundToInt
+import kotlin.text.format
+import java.util.Locale
 
-fun evaluateExpression(expression: String): String {
+fun evaluateExpression(
+    expression: String,
+    preferredLocale: Locale): String {
     return try {
-        val result = simpleEvaluate(expression)
-        result.toString()
+        var result = simpleEvaluate(expression)
+        result = (result * 100.00).roundToInt() / 100.00
+        if (result < 0) {
+            result = 0.0
+        }
+        String.format(preferredLocale, "%.2f", result)
     } catch (e: Exception) {
         "Error"
     }
 }
 
 fun simpleEvaluate(expr: String): Double {
+    Log.d("CalculatorScreen", "Evaluating: $expr")
+
     val numbers = Stack<Double>()
     val operations = Stack<Char>()
     var i = 0
