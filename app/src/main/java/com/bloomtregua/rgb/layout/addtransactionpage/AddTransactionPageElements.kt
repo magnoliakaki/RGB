@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun TransactionInsertBox(modifier: Modifier = Modifier) {

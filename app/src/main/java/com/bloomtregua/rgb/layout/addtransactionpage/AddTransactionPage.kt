@@ -18,8 +18,8 @@ import com.bloomtregua.rgb.viewmodels.TransactionsViewModel
 
 @Composable()
 fun AddTransactionPage(
-    modifier: Modifier = Modifier
-//    transactionsViewModel: TransactionsViewModel = hiltViewModel()
+    modifier: Modifier = Modifier,
+    transactionsViewModel: TransactionsViewModel = hiltViewModel()
 ) {
     ConstraintLayout(modifier = modifier) {
         val (calculatorRef, transactionInsertBoxRef) = createRefs()
@@ -56,7 +56,7 @@ fun AddTransactionPage(
             bottom.linkTo(transactionInsertBoxRef.top)
             height = Dimension.wrapContent
             width = Dimension.fillToConstraints }
-        )
+        , userPreferencesRepository = transactionsViewModel.userPreferencesRepository)
     }
 }
 
