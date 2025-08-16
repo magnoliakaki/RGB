@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -23,15 +24,14 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
     var input by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier
-            .padding(16.dp),
+        modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = input.ifEmpty { "0" },
             fontSize = 48.sp,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.End
+            textAlign = TextAlign.End,
+            modifier = Modifier.fillMaxWidth()
         )
 
         val buttons = listOf(
@@ -43,7 +43,7 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             buttons.forEach { row ->
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(modifier = Modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { label ->
                         CalculatorButton(
                             label = label,
@@ -64,3 +64,8 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
     }
 }
 
+@Preview
+@Composable
+fun CalculatorScreenPreview() {
+    CalculatorScreen()
+}
