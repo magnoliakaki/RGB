@@ -19,3 +19,4 @@ val PageTopBottomMargins = 64.dp
 
 // barre / rettangoli
 const val BarHeightS = 0.05f
+const val BarHeightM = 0.08f

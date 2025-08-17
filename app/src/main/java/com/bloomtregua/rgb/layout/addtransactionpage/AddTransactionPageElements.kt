@@ -1,174 +1,159 @@
 package com.bloomtregua.rgb.layout.addtransactionpage
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
+import android.app.TimePickerDialog
+import android.icu.util.Calendar
+import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
-import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.compose.ui.platform.LocalContext
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun TransactionInsertBox(modifier: Modifier = Modifier) {
-    var transactionDescription by remember { mutableStateOf("") }
-    var selectedAccount by remember { mutableStateOf<String?>(null) }
-
-    ConstraintLayout(modifier = modifier) {
-        val (insertBox, amount, date) = createRefs()
-        val listaContiEsempio = listOf("Hype", "BBVA", "Carta di credito")
-
-        Box(
-            Modifier
-                .clip(RoundedCornerShape(15.0.dp))
-                .size(350.0.dp, 200.0.dp)
-                .constrainAs(insertBox) {
-                    centerTo(parent)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                }){
-
-            TransactionDescriptionInputField(
-                value = transactionDescription,
-                onValueChange = { transactionDescription = it },
-                label = "Descrizione",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            )
-
-            AccountsList(
-                title = "Conto",
-                items = listaContiEsempio, // Use your list of categories
-                selectedItem = selectedAccount,
-                onItemSelected = { selectedAccount = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .padding(16.dp),
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun TransactionInsertBoxPreview() {
-    TransactionInsertBox(modifier = Modifier.fillMaxSize())
-}
-
-
-@Composable
-fun TransactionDescriptionInputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    modifier: Modifier = Modifier
-) {
+fun TransactionDescriptionInputField(modifier : Modifier = Modifier) {
+    var text by remember { mutableStateOf("") }
     OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        modifier = modifier
+        modifier = modifier,
+        value = text,
+        onValueChange = { text = it },
+        label = { Text("Descrizione") }
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T> AccountsList(
-    title: String,
-    items: List<T>,
-    selectedItem: T?,
-    onItemSelected: (T) -> Unit,
+fun TransactionDateInputField(
+    modifier : Modifier = Modifier,
+    currentDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit
+) {
+    var showDatePickerDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
+    Log.d("DateInputField", "Ricevuta currentDate: $currentDate")
+    OutlinedTextField(
+        modifier = modifier
+            .clickable { showDatePickerDialog = true },
+        label = { Text("Data") },
+        value = currentDate.format(dateFormatter),
+        onValueChange = { },
+        readOnly = true,
+        enabled = false,
+        trailingIcon = {
+            Icon(
+                Icons.Filled.DateRange,
+                contentDescription = "Seleziona Data",
+                modifier = Modifier.clickable { showDatePickerDialog = true }
+            )
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledBorderColor = MaterialTheme.colorScheme.outline,
+            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    )
+
+
+    if (showDatePickerDialog) {
+        val calendar = Calendar.getInstance()
+        calendar.set(currentDate.year, currentDate.monthValue - 1, currentDate.dayOfMonth) // Mese è 0-indexed
+
+        android.app.DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                val newSelectedDateDialog = LocalDate.of(year, month + 1, dayOfMonth)
+                onDateSelected(newSelectedDateDialog)
+                showDatePickerDialog = false
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            setOnDismissListener { showDatePickerDialog = false }
+            show()
+        }
+    }
+}
+
+
+@Composable
+fun TransactionTimeInputField(
     modifier: Modifier = Modifier,
-    itemContent: @Composable (item: T, isSelected: Boolean) -> Unit = { item, isSelected ->
-        // Default item appearance
-        AccountListDefaultItem(item = item, isSelected = isSelected, itemToString = { it.toString() })
-    }
+    initialTime: LocalTime = LocalTime.now(), // Pre-valorizzato all'ora attuale
+    onTimeSelected: (LocalTime) -> Unit
 ) {
-    Column(modifier = modifier) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
+    var selectedTime by remember { mutableStateOf(initialTime) }
+    var showTimePickerDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    // Formatter per visualizzare l'ora
+    val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
+
+    OutlinedTextField(
+        value = selectedTime.format(timeFormatter),
+        onValueChange = { /* Non fare nulla, il campo è di sola lettura */ },
+        modifier = modifier
+            .clickable { showTimePickerDialog = true },
+        label = { Text("Ora") },
+        readOnly = true,
+        enabled = false, // Disabilita l'input testuale mantenendo il clic
+        trailingIcon = {
+            Icon(
+                Icons.Filled.AddCircle,
+                contentDescription = "Seleziona Ora",
+                modifier = Modifier.clickable { showTimePickerDialog = true }
+            )
+        },
+        // Per far sembrare il campo cliccabile e non disabilitato
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledBorderColor = MaterialTheme.colorScheme.outline,
+            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 300.dp) // Constrain height, make it scrollable
-                .border(
-                    1.dp,
-                    MaterialTheme.colorScheme.outline,
-                    RoundedCornerShape(8.dp)
-                )
-        ) {
-            items(items) { item ->
-                val isSelected = item == selectedItem
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = isSelected,
-                            onClick = { onItemSelected(item) },
-                            role = Role.RadioButton // Or Role.Checkbox if multiple selections were allowed
-                        )
-                        .padding(horizontal = 16.dp, vertical = 12.dp) // Padding for each item
-                ) {
-                    itemContent(item, isSelected)
-                }
-            }
+    )
+
+    if (showTimePickerDialog) {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, selectedTime.hour)
+        calendar.set(Calendar.MINUTE, selectedTime.minute)
+
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute ->
+                val newSelectedTime =
+                    LocalTime.of(hourOfDay, minute)
+                selectedTime = newSelectedTime
+                onTimeSelected(newSelectedTime)
+                showTimePickerDialog = false
+            },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            true // true per formato 24 ore, false per AM/PM
+        ).apply {
+            setOnDismissListener { showTimePickerDialog = false }
+            show()
         }
     }
 }
 
-@Composable
-fun <T> AccountListDefaultItem(
-    item: T,
-    isSelected: Boolean,
-    itemToString: (T) -> String
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(4.dp)) // Optional: visual indication
-            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-
-    ) {
-        Text(
-            text = itemToString(item),
-            style = MaterialTheme.typography.bodyLarge,
-            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
-        )
-        // You could add a RadioButton or Checkbox icon here if desired
-        if (isSelected) {
-            // Example: Add a simple checkmark or indication
-            // Icon(Icons.Filled.Check, contentDescription = "Selected", tint = MaterialTheme.colorScheme.primary)
-        }
-    }
-}

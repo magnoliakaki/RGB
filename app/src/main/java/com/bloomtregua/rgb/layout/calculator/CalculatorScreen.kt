@@ -20,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bloomtregua.rgb.di.UserPreferencesRepository
@@ -29,7 +28,7 @@ import java.util.Locale
 @Composable
 fun CalculatorScreen(
     modifier: Modifier = Modifier,
-    userPreferencesRepository: UserPreferencesRepository // Make repository optional
+    userPreferencesRepository: UserPreferencesRepository
 ) {
     var input by remember { mutableStateOf("") }
     var displayedText by remember { mutableStateOf("0") }
@@ -101,8 +100,8 @@ fun CalculatorScreen(
                                     }
                                     "." -> {
                                         if (!displayedText.contains(".")) { // Aggiungi il punto solo se non già presente
-                                            input += label
-                                            displayedText += label
+                                            input += "."
+                                            displayedText += "."
                                         }
                                     }
                                     else -> {
