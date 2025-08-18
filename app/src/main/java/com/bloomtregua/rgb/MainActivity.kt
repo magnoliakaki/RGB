@@ -7,20 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.lifecycleScope
 import com.bloomtregua.rgb.database.RGBDatabase
 import com.bloomtregua.rgb.database.prepopulateDatabase
-import com.bloomtregua.rgb.di.UserPreferencesRepository
-import com.bloomtregua.rgb.layout.addtransactionpage.AddTransactionPage
-import com.bloomtregua.rgb.layout.calculator.CalculatorScreen
 import com.bloomtregua.rgb.layout.homepage.HomePage
 import com.bloomtregua.rgb.ui.theme.RGBTheme
-import com.bloomtregua.rgb.viewmodels.UserpreferenceViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
