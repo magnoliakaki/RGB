@@ -4,6 +4,8 @@ import com.bloomtregua.rgb.database.budget.BudgetDao
 import com.bloomtregua.rgb.database.budget.BudgetEntity
 import com.bloomtregua.rgb.database.categories.CategoryDao
 import com.bloomtregua.rgb.database.categories.CategoryEntity
+import com.bloomtregua.rgb.database.categories.SubcategoryDao
+import com.bloomtregua.rgb.database.categories.SubcategoryEntity
 import com.bloomtregua.rgb.database.transactions.TransactionDao
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -12,6 +14,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface CategoryRepository {
+    fun getCategoryById(categoryId: Long): Flow<CategoryEntity>
+    fun getSubcategoryByCategoryId(subcategoryCategoryId: Long): Flow<List<SubcategoryEntity>>
     fun getCategorySolaUscita(): Flow<List<CategoryEntity>>
     fun getCategorySolaUscitaByAccount(accountId: Long): Flow<List<CategoryEntity>>
     suspend fun getBudgetSettings(): BudgetEntity?
@@ -23,14 +27,26 @@ interface CategoryRepository {
     suspend fun getSumTransactionsFromDateByCategoryId(categoryId: Long, startDate: LocalDate): Double?
     suspend fun getMinTransactionTimestampByCategoryId(categoryId: Long): LocalDateTime?
     suspend fun getSumTransactionsFromTimestampByCategoryId(categoryId: Long, startDate: LocalDateTime): Double?
+    suspend fun getSumTransactionsFromDateBySubcategoryId(subcategoryId: Long, startDate: LocalDate): Double?
+    suspend fun getSumTransactionsFromTimestampBySubcategoryId(subcategoryId: Long, startDate: LocalDateTime): Double?
+    suspend fun getPresenzaAllertInAccountOrCategory(accountId: Long, categoryId: Long?): Int
 }
 
 @Singleton
 class CategoryRepositoryImpl @Inject constructor(
     private val categoryDao: CategoryDao,     // Hilt inietterà questo da DatabaseModule
+    private val subcategoryDao: SubcategoryDao, // Hilt inietterà questo da DatabaseModule
     private val budgetDao: BudgetDao,         // Hilt inietterà questo da DatabaseModule
     private val transactionDao: TransactionDao  // Hilt inietterà questo da DatabaseModule
 ) : CategoryRepository {
+
+    override fun getCategoryById(categoryId: Long): Flow<CategoryEntity> {
+        return categoryDao.getCategoryById(categoryId)
+    }
+
+    override fun getSubcategoryByCategoryId(subcategoryCategoryId: Long): Flow<List<SubcategoryEntity>> {
+        return subcategoryDao.getSubcategoryByCategoryId(subcategoryCategoryId)
+    }
 
     override fun getCategorySolaUscita(): Flow<List<CategoryEntity>> {
         return categoryDao.getCategorySolaUscita()
@@ -74,6 +90,18 @@ class CategoryRepositoryImpl @Inject constructor(
 
     override suspend fun getSumTransactionsFromTimestampByCategoryId(categoryId: Long, startDate: LocalDateTime): Double? {
         return transactionDao.getSumTransactionsFromTimestampByCategoryId(categoryId, startDate)
+    }
+
+    override suspend fun getSumTransactionsFromDateBySubcategoryId(subcategoryId: Long, startDate: LocalDate): Double? {
+        return transactionDao.getSumTransactionsFromDateBySubcategoryId(subcategoryId, startDate)
+    }
+
+    override suspend fun getSumTransactionsFromTimestampBySubcategoryId(subcategoryId: Long, startDate: LocalDateTime): Double? {
+        return transactionDao.getSumTransactionsFromTimestampBySubcategoryId(subcategoryId, startDate)
+    }
+
+    override suspend fun getPresenzaAllertInAccountOrCategory(accountId: Long, categoryId: Long?): Int {
+        return categoryDao.getPresenzaAllertInAccountOrCategory(accountId, categoryId)
     }
 }
 

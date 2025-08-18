@@ -23,5 +23,6 @@ interface AccountDao {
     fun getAllAccounts(): Flow<List<AccountEntity>>
 
     @Query("SELECT * FROM accounts WHERE accountId = :accountId")
-    fun getAccountById(accountId: Int): Flow<AccountEntity>
+    fun getAccountById(accountId: Long): Flow<AccountEntity>
+
 }

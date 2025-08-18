@@ -1,6 +1,7 @@
 package com.bloomtregua.rgb.layout.homepage
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,8 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import com.bloomtregua.rgb.ui.theme.RGBTheme
+import com.bloomtregua.rgb.ui.theme.*
 import com.bloomtregua.rgb.viewmodels.CategoriaUiModel
+import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.util.Locale
 
 @Preview(showBackground = true, name = "Item Categoria Singola")
 @Composable
@@ -37,7 +41,10 @@ private fun PreviewCategoriaDettaglio() {
                     percentualeSpeso = 120.50 / 250.0, // Assicurati che il modello lo abbia
                     categoryMacroCategoryId = 10L
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onCategoryClick = { },
+                hasAlertCategoria = false,
+                currencyFormatter = NumberFormat.getCurrencyInstance(Locale.ITALY) as DecimalFormat
             )
         }
 
@@ -59,7 +66,10 @@ private fun PreviewCategoriaDettaglioNomeLungo() {
                     percentualeSpeso = 1.0,
                     categoryMacroCategoryId = 11L
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onCategoryClick = { },
+                hasAlertCategoria = false,
+                currencyFormatter = NumberFormat.getCurrencyInstance(Locale.ITALY) as DecimalFormat
             )
         }
     }
@@ -80,7 +90,10 @@ private fun PreviewCategoriaDettaglioSpesaEccessiva() {
                     percentualeSpeso = 180.0 / 150.0,
                     categoryMacroCategoryId = 12L
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onCategoryClick = { },
+                hasAlertCategoria = true,
+                currencyFormatter = NumberFormat.getCurrencyInstance(Locale.ITALY) as DecimalFormat
             )
         }
     }
@@ -89,15 +102,23 @@ private fun PreviewCategoriaDettaglioSpesaEccessiva() {
 @Composable()
 fun CategoriaDettaglio(
     categoria: CategoriaUiModel, // Passa l'oggetto dati
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCategoryClick: (Long) -> Unit,
+    hasAlertCategoria : Boolean,
+    currencyFormatter: DecimalFormat
 ) {
-    ConstraintLayout(modifier = modifier.padding(bottom = 8.dp)) { // Aggiungi padding tra gli elementi
-        val (nomeCategoria, totaleResiduoCategoria, totaleSpesoCategoria, totaleCategoria, spesoCategoria) = createRefs()
+    ConstraintLayout(
+        modifier = modifier
+            .padding(bottom = 8.dp) // Aggiungi padding tra gli elementi
+            .clickable { onCategoryClick(categoria.categoryId) } // Rendi l'intero elemento cliccabile
+
+    ) {
+        val (nomeCategoria, totaleResiduoCategoria, totaleSpesoCategoria, totaleCategoria, spesoCategoria, alertCategoria) = createRefs()
 
         // Barra di progresso
         Box(
             Modifier
-                .background(Color(0.3f, 0.52f, 0.61f, 1.0f)) // Colore base della barra
+                .background(BarraCategoriaSfondo) // Colore base della barra
                 .constrainAs(spesoCategoria) {
                     linkTo(parent.start, parent.end, bias = 0.0f) // Allinea a sinistra
                     top.linkTo(parent.top, margin = 4.dp) // Leggero margine dall'alto
@@ -106,7 +127,15 @@ fun CategoriaDettaglio(
                 }
         ) {
             val percentualeSpeso = categoria.percentualeSpeso.toFloat().coerceIn(0f, 1f)
-            val coloreSpeso = if (categoria.percentualeSpeso > 1.0f) Color.Red else Color(0.83f, 0.85f, 0.5f, 1.0f)
+            val coloreSpeso = if (categoria.percentualeSpeso > 1.0f) {
+                BarraCategoriaErrore
+            } else {
+                if (categoria.percentualeSpeso == 1.0) {
+                    BarraCategoriaCompleta
+                } else {
+                    BarraCategoriaProgresso
+                }
+            }
 
             Box( // Barra che rappresenta la spesa effettiva
                 Modifier
@@ -134,7 +163,7 @@ fun CategoriaDettaglio(
         )
 
         Text(
-            text = "%.2f".format(categoria.totaleResiduo),
+            text = currencyFormatter.format(categoria.totaleResiduo),
             modifier = Modifier
                 .constrainAs(totaleResiduoCategoria) {
                     end.linkTo(parent.end)
@@ -147,7 +176,7 @@ fun CategoriaDettaglio(
         )
 
         Text(
-            text = "%.2f".format(categoria.totaleSpeso),
+            text = currencyFormatter.format(categoria.totaleSpeso),
             modifier = Modifier
                 .constrainAs(totaleSpesoCategoria) {
                     end.linkTo(parent.end, margin = 120.dp)
@@ -160,7 +189,7 @@ fun CategoriaDettaglio(
         )
 
         Text(
-            text = "%.2f".format(categoria.categoryAllAmount),
+            text = currencyFormatter.format(categoria.categoryAllAmount),
             modifier = Modifier
                 .constrainAs(totaleCategoria) {
                     top.linkTo(nomeCategoria.bottom, margin = 2.dp) // Sotto NomeCategoria
@@ -171,5 +200,21 @@ fun CategoriaDettaglio(
             ,
             style = LocalTextStyle.current.copy(color = Color.White, textAlign = TextAlign.Left, fontSize = 12.0.sp, fontStyle = FontStyle.Italic)
         )
+
+        if (hasAlertCategoria && categoria.percentualeSpeso <= 1.0f) { // Mostra l'alert solo se necessario
+            AlertConto(
+                modifier = Modifier
+                    .constrainAs(alertCategoria) {
+                        start.linkTo(totaleCategoria.end, margin = 8.dp)
+                        top.linkTo(nomeCategoria.bottom, margin = 2.dp)
+                        bottom.linkTo(totaleCategoria.bottom)
+
+                        width = Dimension.wrapContent
+                        height = Dimension.value(16.dp)
+                    },
+                    //.clickable(onClick = onAlertClick), // Rendi cliccabile l'alert
+                iconColor = Color.Red
+            )
+        }
     }
 }

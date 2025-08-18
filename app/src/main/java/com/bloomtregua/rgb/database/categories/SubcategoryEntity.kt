@@ -23,6 +23,17 @@ data class SubcategoryEntity(
     @ColumnInfo(name = "subcategoryName")
     val subcategoryName: String,
 
+    @ColumnInfo(name = "subcategoryIcon")
+    val subcategoryIcon: String? = null,
+
     @ColumnInfo(name = "subcategoryCategoryId")
-    val subcategoryCategoryId: Long? = null
+    val subcategoryCategoryId: Long = 0,
+
+    @ColumnInfo(name = "subcategoryAllDefaultAmount")  //Valore di default impostato dall'utente per indicare l'assegnato da dare alla categoria
+    val subcategoryAllDefaultAmount: Double? = 0.0,
+
+    @ColumnInfo(name = "subcategoryAllAmount")    // Valore assegnato alla sottocategoria, da valorizzare ad ogni effettivo cambiamento da parte dell'utente o alla valorizzazione automatica a inizio mese
+    val subcategoryAllAmount: Double? = null,
+
+    // Le impostazioni di frequenza , tipo allocazione e tutti i dettagli saranno ereditati dalla categoria.
 )

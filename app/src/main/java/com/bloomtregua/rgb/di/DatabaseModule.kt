@@ -6,6 +6,7 @@ import com.bloomtregua.rgb.database.RGBDatabase
 import com.bloomtregua.rgb.database.accounts.AccountDao
 import com.bloomtregua.rgb.database.budget.BudgetDao
 import com.bloomtregua.rgb.database.categories.CategoryDao
+import com.bloomtregua.rgb.database.categories.SubcategoryDao
 import com.bloomtregua.rgb.database.transactions.TransactionDao
 import dagger.Module
 import dagger.Provides
@@ -35,6 +36,11 @@ object DatabaseModule {
     @Provides
     fun provideCategoryDao(database: RGBDatabase): CategoryDao {
         return database.categoryDao()
+    }
+
+    @Provides
+    fun provideSubcategoryDao(database: RGBDatabase): SubcategoryDao {
+        return database.subcategoryDao()
     }
 
     @Provides

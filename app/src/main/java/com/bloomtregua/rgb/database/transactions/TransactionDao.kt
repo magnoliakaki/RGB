@@ -92,4 +92,28 @@ interface TransactionDao {
         categoryId: Long,
         startDate: LocalDateTime
     ): Double?
+
+    @Query("""
+       SELECT SUM(COALESCE(transactionAmount,0)*COALESCE(transactionSign,-1))
+       FROM transactions
+       WHERE transactionSubCategoryId = :subcategoryId
+         AND transactionDate >= :startDate
+         AND transactionDate <= date('now')
+   """)
+    suspend fun getSumTransactionsFromDateBySubcategoryId(
+        subcategoryId: Long,
+        startDate: LocalDate
+    ): Double?
+
+    @Query("""
+       SELECT SUM(COALESCE(transactionAmount,0)*COALESCE(transactionSign,-1))
+       FROM transactions
+       WHERE transactionSubCategoryId = :subcategoryId
+         AND transactionTimestamp >= :startDate
+         AND transactionTimestamp < date('now', '+1 day')
+   """)
+    suspend fun getSumTransactionsFromTimestampBySubcategoryId(
+        subcategoryId: Long,
+        startDate: LocalDateTime
+    ): Double?
 }

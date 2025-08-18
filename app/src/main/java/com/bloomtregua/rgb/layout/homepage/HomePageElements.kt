@@ -32,6 +32,7 @@ import com.bloomtregua.rgb.R
 import com.bloomtregua.rgb.database.accounts.AccountEntity
 import com.bloomtregua.rgb.ui.theme.HeightPercentageToPageM
 import com.bloomtregua.rgb.ui.theme.RGBTheme
+import java.text.DecimalFormat
 
 @Preview(showBackground = true, name = "Anteprima Barra Navigazione")
 @Composable
@@ -72,11 +73,14 @@ private fun PreviewDettaglioProssimeTransazioni() {
 fun RiquadroConto(
     modifier: Modifier = Modifier,
     activeAccountName: String,         // Nome del conto attivo
+    activeAccountBalance: Double,      // Saldo del conto attivo
     allAccounts: List<AccountEntity>,  // Tutti i conti
     onAccountSelected: (Long) -> Unit, // Callback per la selezione
     hasAlert: Boolean,                 // Per l'icona di alert
-    onAlertClick: () -> Unit           // Azione per l'alert
+    onAlertClick: () -> Unit,           // Azione per l'alert
+    currencyFormatter: DecimalFormat
 ) {
+
     ConstraintLayout(modifier = modifier) {
         val (RectangleConto, SaldoConto, SelezioneConto, AlertConto) = createRefs()
 
@@ -90,7 +94,9 @@ fun RiquadroConto(
                     height = Dimension.fillToConstraints
                 }){}
 
-        Text("4632.43", Modifier
+        Text(
+            text = currencyFormatter.format(activeAccountBalance),
+            Modifier
             .wrapContentHeight(Alignment.CenterVertically)
             .constrainAs(SaldoConto) {
                 linkTo(parent.start, parent.end, bias = 0.87f)
@@ -248,7 +254,7 @@ fun AlertConto(modifier: Modifier = Modifier, iconColor: Color) { // Aggiunto ic
 
     Box(
         modifier = modifier.fillMaxSize(), // Riempi lo spazio dato dal chiamante
-        contentAlignment = Alignment.Center // Centra l'icona nel Box
+        contentAlignment = Alignment.CenterStart // Centra l'icona nel Box
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_alertconto), // Usa l'ID del tuo Vector Asset

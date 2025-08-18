@@ -1,6 +1,5 @@
 package com.bloomtregua.rgb.viewmodels
 
-import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bloomtregua.rgb.database.transactions.TransactionEntity

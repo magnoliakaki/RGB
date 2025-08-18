@@ -21,6 +21,6 @@ class AccountRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAccountById(accountId: Long): Flow<AccountEntity?> {
-        return accountDao.getAccountById(accountId.toInt())
+        return accountDao.getAccountById(accountId)
     }
 }

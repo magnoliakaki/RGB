@@ -59,6 +59,7 @@ class UserPreferencesRepository @Inject constructor(@ApplicationContext private 
         }
     }
 
+    // Setto i parametri di default del locale
     val userLocaleFlow: Flow<Locale> = context.dataStore.data
         .catch { exception ->
             if (exception is IOException) {
@@ -71,11 +72,16 @@ class UserPreferencesRepository @Inject constructor(@ApplicationContext private 
             // TODO: cambia valore di default su italia
             val language = preferences[UserPreferencesKeys.USER_LOCALE_LANGUAGE] ?: Locale.ITALY.language
             val country = preferences[UserPreferencesKeys.USER_LOCALE_COUNTRY] ?: Locale.ITALY.country
-            val numberFormat = preferences[UserPreferencesKeys.USER_LOCALE_NUMBER_FORMAT] ?: Locale.ITALY
-            val currency = preferences[UserPreferencesKeys.USER_LOCALE_CURRENCY] ?: "default"
-            val dateFormat = preferences[UserPreferencesKeys.USER_LOCALE_DATE_FORMAT] ?: "default"
             Locale(language, country)
         }
+
+    // Imposto la valuta del Locale (che sarà differente nel caso da quella impostata sul Locale sopra)
+    val preferredCurrencyCodeFlow: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            val currencyCode = "EUR"
+            currencyCode.toString()
+        }
+        .catch { emit("EUR") } // Fallback
 
     suspend fun updateUserLocale(locale: Locale) {
         context.dataStore.edit { preferences ->

@@ -154,13 +154,15 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
 
     val accountHype = accountDao.insertAccount(AccountEntity(
             accountName = "Hype",
-            accountType = AccountType.CHECKING
+            accountType = AccountType.CHECKING,
+            accountBalance = 1234.00
         )
     )
 
     val accountBBVA = accountDao.insertAccount(AccountEntity(
             accountName = "BBVA",
-            accountType = AccountType.SAVINGS
+            accountType = AccountType.SAVINGS,
+            accountBalance = 576.22
         )
     )
 
@@ -172,7 +174,8 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
 
     accountDao.insertAccount(AccountEntity(
         accountName = "Cassa di Risparmio di Bologna",
-        accountType = AccountType.CHECKING
+        accountType = AccountType.CHECKING,
+        accountBalance = 0.00
     )
     )
 
@@ -239,7 +242,8 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
             categoryAccountId = accountHype,
             categoryAllocationId = allocationTransactions,
             categoryMacroCategoryId = macroCategorySubs,
-            categoryAllFrequencyMonths = 1
+            categoryAllFrequencyMonths = 1,
+            categoryAllAmount = 8.10
         )
     )
 
@@ -257,7 +261,8 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
             categoryAccountId = accountHype,
             categoryAllocationId = allocationTransactions,
             categoryMacroCategoryId = macroCategorySubs,
-            categoryAllFrequencyMonths = 1
+            categoryAllFrequencyMonths = 1,
+            categoryAllAmount = 30.00
         )
     )
 
@@ -275,21 +280,32 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
     val subCategoryAmazon = subcategoryDao.insertSubcategory(
         SubcategoryEntity(
             subcategoryName = "Amazon",
-            subcategoryCategoryId = categoryExtra
+            subcategoryCategoryId = categoryExtra,
+            subcategoryAllAmount = 140.00
         )
     )
 
     val subCategoryDaTavola = subcategoryDao.insertSubcategory(
         SubcategoryEntity(
             subcategoryName = "Giochi da tavolo",
-            subcategoryCategoryId = categoryExtra
+            subcategoryCategoryId = categoryExtra,
+            subcategoryAllAmount = 200.00
         )
     )
 
     val subCategorySteamEpic = subcategoryDao.insertSubcategory(
         SubcategoryEntity(
             subcategoryName = "Steam/Epic Games",
-            subcategoryCategoryId = categoryExtra
+            subcategoryCategoryId = categoryExtra,
+            subcategoryAllAmount = 50.00
+        )
+    )
+
+    val subCategoryExtraCasa = subcategoryDao.insertSubcategory(
+        SubcategoryEntity(
+            subcategoryName = "Casa",
+            subcategoryCategoryId = categoryExtra,
+            subcategoryAllAmount = 80.00
         )
     )
 
@@ -333,6 +349,28 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
             transactionDate = LocalDate.of(2025, 7, 15),
             transactionTimestamp = LocalDateTime.of(2025, 7, 15, 23, 59), // Anno, Mese, Giorno, Ora, Minuto,
             transactionDescription = "Spesa settimanale Esselunga",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categorySubscription3, // ID della categoria "Spesa"
+            transactionAmount = 10.0,
+            transactionDate = LocalDate.of(2025, 7, 22),
+            transactionTimestamp = LocalDateTime.of(2025, 7, 22, 0, 0), // Anno, Mese, Giorno, Ora, Minuto,
+            transactionDescription = "Abbonamento Netflix Mio",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categorySubscription3, // ID della categoria "Spesa"
+            transactionAmount = 20.0,
+            transactionDate = LocalDate.of(2025, 7, 22),
+            transactionTimestamp = LocalDateTime.of(2025, 7, 22, 0, 0), // Anno, Mese, Giorno, Ora, Minuto,
+            transactionDescription = "Abbonamento Netflix Ilaria",
             transactionSign = -1
         )
     )
@@ -422,10 +460,34 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
         TransactionEntity(
             transactionCategoryId = categoryExtra,
             transactionSubCategoryId = subCategorySteamEpic,
-            transactionAmount = 9.99,
+            transactionAmount = 29.99,
             transactionDate = LocalDate.of(2025, 8, 10),
             transactionTimestamp = LocalDateTime.of(2025, 8, 10, 12, 51),
             transactionDescription = "Steam Simulator",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryExtra,
+            transactionSubCategoryId = subCategoryExtraCasa,
+            transactionAmount = 29.99,
+            transactionDate = LocalDate.of(2025, 8, 10),
+            transactionTimestamp = LocalDateTime.of(2025, 8, 10, 12, 51),
+            transactionDescription = "Uccidi Erbacce",
+            transactionSign = -1
+        )
+    )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryExtra,
+            transactionSubCategoryId = subCategoryExtraCasa,
+            transactionAmount = 5.99,
+            transactionDate = LocalDate.of(2025, 7, 23),
+            transactionTimestamp = LocalDateTime.of(2025, 7, 23, 12, 51),
+            transactionDescription = "Tovaglia cucina",
             transactionSign = -1
         )
     )

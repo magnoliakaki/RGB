@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +15,7 @@ import com.bloomtregua.rgb.layout.addtransactionpage.AddTransactionPage
 import com.bloomtregua.rgb.layout.calculator.CalculatorScreen
 import com.bloomtregua.rgb.layout.homepage.HomePage
 import com.bloomtregua.rgb.ui.theme.RGBTheme
+import com.bloomtregua.rgb.viewmodels.UserpreferenceViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,9 +24,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var userPreferencesRepository: UserPreferencesRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,8 +39,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             RGBTheme(dynamicColor = false)  {
                 Surface() {
-                    AddTransactionPage(modifier = Modifier.fillMaxSize())
-//                    HomePage(modifier = Modifier.fillMaxSize())
+                    //AddTransactionPage()
+                    HomePage(modifier = Modifier.fillMaxSize())
                 }
             }
         }
