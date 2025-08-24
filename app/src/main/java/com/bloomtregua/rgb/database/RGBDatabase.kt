@@ -26,6 +26,7 @@ import com.bloomtregua.rgb.database.transactions.TransactionDao
 import com.bloomtregua.rgb.database.transactions.TransactionEntity
 import java.time.LocalDate
 import android.util.Log
+import androidx.room.withTransaction
 import com.bloomtregua.rgb.database.transactions.TransactionConverters
 import java.time.LocalDateTime
 
@@ -61,7 +62,7 @@ abstract class RGBDatabase : RoomDatabase() {
             Log.d("RGBDatabase", "return instance")
             return INSTANCE ?: synchronized(this) {
                 Log.d("RGBDatabase", "Database starting")
-                context.deleteDatabase("rgb_database")      //TODO DA RIMUOVERE PRIMA DELLA PUBBLICAZIONE O DEI TEST EFFETTIVI SUL DB
+                //context.deleteDatabase("rgb_database")      //TODO DA RIMUOVERE PRIMA DELLA PUBBLICAZIONE O DEI TEST EFFETTIVI SUL DB
                 val instance = Room.databaseBuilder(
                                 context.applicationContext,
                                 RGBDatabase::class.java,
@@ -81,7 +82,7 @@ abstract class RGBDatabase : RoomDatabase() {
     }
 }
 
-suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
+suspend fun prepopulateDatabase(context: Context, rgbDatabase: RGBDatabase) {
     val accountDao = rgbDatabase.accountDao()
     val transactionDao = rgbDatabase.transactionDao()
     val categoryDao = rgbDatabase.categoryDao()
@@ -95,56 +96,55 @@ suspend fun prepopulateDatabase(rgbDatabase: RGBDatabase) {
      */
 
     val allocationTransactions = allocationDao.insertAllocation(AllocationEntity(
-            allocationName = R.string.allocation_type_transactions.toString()
+            allocationName = context.getString(R.string.allocation_type_transactions)
         )
     )
 
     val allocationPocketMoney = allocationDao.insertAllocation(AllocationEntity(
-            allocationName = R.string.allocation_type_pocket_money.toString()
+            allocationName = context.getString(R.string.allocation_type_pocket_money)
         )
     )
 
     val allocationOngoing = allocationDao.insertAllocation(AllocationEntity(
-            allocationName = R.string.allocation_type_ongoing.toString()
+            allocationName = context.getString(R.string.allocation_type_ongoing)
         )
     )
 
     val allocationSomeday = allocationDao.insertAllocation(AllocationEntity(
-            allocationName = R.string.allocation_type_someday.toString()
+            allocationName = context.getString(R.string.allocation_type_someday)
         )
     )
 
     val allocationDeadline = allocationDao.insertAllocation(AllocationEntity(
-            allocationName = R.string.allocation_type_deadline.toString()
+            allocationName = context.getString(R.string.allocation_type_deadline)
         )
     )
 
     /*
      * Macro categorie
      */
-
     val macroCategoryNeeds = macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
-            macroCategoryName = R.string.macro_category_needs.toString()
+            macroCategoryName = context.getString(R.string.macro_category_needs)
         )
     )
 
     val macroCategoryWishes = macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
-            macroCategoryName = R.string.macro_category_wishes.toString()
+            macroCategoryName = context.getString(R.string.macro_category_wishes)
         )
     )
 
     val macroCategoryMusts = macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
-            macroCategoryName = R.string.macro_category_musts.toString()
+            macroCategoryName = context.getString(R.string.macro_category_musts)
         )
     )
 
     val macroCategorySavings = macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
-            macroCategoryName = R.string.macro_category_savings.toString()
+            macroCategoryName = context.getString(R.string.macro_category_savings)
         )
     )
 
     val macroCategorySubs = macroCategoryDao.insertMacroCategory(MacroCategoryEntity(
-            macroCategoryName = R.string.macro_category_subs.toString()
+            macroCategoryName = context.getString(R.string.macro_category_subs)
         )
     )
 

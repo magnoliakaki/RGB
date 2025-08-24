@@ -9,6 +9,7 @@ import javax.inject.Singleton
 interface AccountRepository {
     fun getAllAccounts(): Flow<List<AccountEntity>>
     suspend fun getAccountById(accountId: Long): Flow<AccountEntity?>
+    suspend fun updateAccountBalance(accountId: Long, newBalance: Double)
 }
 
 @Singleton
@@ -22,5 +23,9 @@ class AccountRepositoryImpl @Inject constructor(
 
     override suspend fun getAccountById(accountId: Long): Flow<AccountEntity?> {
         return accountDao.getAccountById(accountId)
+    }
+
+    override suspend fun updateAccountBalance(accountId: Long, newBalance: Double) {
+        accountDao.updateAccountBalance(accountId, newBalance)
     }
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.bloomtregua.rgb.database.budget.BudgetEntity
 import com.bloomtregua.rgb.database.budget.BudgetResetType
 import com.bloomtregua.rgb.database.categories.CategoryEntity
+import com.bloomtregua.rgb.database.categories.MacroCategoryEntity
 import com.bloomtregua.rgb.database.categories.SubcategoryEntity
 import com.bloomtregua.rgb.di.CategoryRepository
 import com.bloomtregua.rgb.di.UserPreferencesRepository
@@ -20,10 +21,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 import kotlin.math.min
@@ -39,6 +42,21 @@ data class CategoriaUiModel(
     val percentualeSpeso: Double,    // Percentuale spesa sul totale categoria
     val categoryMacroCategoryId: Long?,
     val hasErrorInSubcategories: Boolean = false
+)
+
+data class CategoriaUpdateData(
+    val categoryId: Long,
+    val newName: String?, // Permetti null se il nome non è stato modificato
+    val newMacroCategoryId: Long? = null,
+    val newIcon: String? = null
+    // Aggiungi altri campi che l'utente può modificare
+)
+
+data class SottocategoriaUpdateData(
+    val categoryId: Long,
+    val subcategoryId: Long?,
+    val newName: String?, // Permetti null se il nome non è stato modificato
+    // Aggiungi altri campi che l'utente può modificare
 )
 
 fun CategoryEntity.toCategoriaUiModel(speso: Double, hasError: Boolean): CategoriaUiModel {
@@ -101,6 +119,11 @@ class CategoriesViewModel @Inject constructor(
         _selectedCategoryId.value = null
     }
 
+    // Getter per ottenere l'ID della categoria selezionata
+    fun getSelectedCategoryId(): Long? {
+        return _selectedCategoryId.value
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val selectedCategoryDetails: StateFlow<CategoriaUiModel?> =
         _selectedCategoryId.flatMapLatest { id ->
@@ -109,23 +132,85 @@ class CategoriesViewModel @Inject constructor(
             } else {
                 categoryRepository.getCategoryById(id) // Assumendo che questo restituisca Flow<CategoryEntity?>
                     .flatMapLatest { categoryEntity ->
-                        if (categoryEntity == null) {
-                            flowOf(null)
-                        } else {
-                            // Simile alla logica in categoriesUiModel per una singola categoria
-                            flowOf(categoryEntity).mapLatest { entity ->
-                                var spesa = recuperaSpesaPerCategoria(entity.categoryId, null, LocalDate.now())
-                                val hasError = categoryRepository.getPresenzaAllertInAccountOrCategory(entity.categoryAccountId,entity.categoryId) > 0
+                        flowOf(categoryEntity).mapLatest { entity ->
+                            var spesa = recuperaSpesaPerCategoria(entity.categoryId, null, LocalDate.now())
+                            val hasError = categoryRepository.getPresenzaAllertInAccountOrCategory(entity.categoryAccountId,entity.categoryId) > 0
 
-                                if (spesa == -0.00) {
-                                    spesa = 0.00
-                                }
-                                entity.toCategoriaUiModel(spesa, hasError)
+                            if (spesa == -0.00) {
+                                spesa = 0.00
                             }
+                            entity.toCategoriaUiModel(spesa, hasError)
                         }
                     }
             }
         }.stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+    private val _selectedSubcategoryId = MutableStateFlow<Long?>(null)
+    val selectedSubcategoryId: StateFlow<Long?> = _selectedSubcategoryId.asStateFlow()
+
+    fun selectSubcategory(subcategoryId: Long?) {
+        _selectedSubcategoryId.value = subcategoryId
+    }
+
+    // Funzione per tornare alla vista principale (deselezionare)
+    fun clearSelectedSubcategory() {
+        _selectedSubcategoryId.value = null
+
+        val categoriaSelezionataID = getSelectedCategoryId()
+        if (categoriaSelezionataID != null) {
+            clearSelectedCategory()
+            selectCategory(categoriaSelezionataID)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val selectedSubcategoryDetails: StateFlow<CategoriaUiModel?> =
+        _selectedSubcategoryId.flatMapLatest { id ->
+            if (id == null) {
+                flowOf(null)
+            } else {
+                categoryRepository.getSubcategoryById(id)
+                    .flatMapLatest { subcategoryEntity ->
+                        flowOf(subcategoryEntity).mapLatest { entity ->
+                            var spesa = recuperaSpesaPerCategoria(entity.subcategoryCategoryId, entity.subcategoryId, LocalDate.now())
+
+                            if (spesa == -0.00) {
+                                spesa = 0.00
+                            }
+                            entity.toCategoriaUiModel(spesa, null)
+                        }
+                    }
+            }
+        }.stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+    fun updateCategory(categoryModifiche: CategoriaUpdateData) {
+        viewModelScope.launch {
+            categoryRepository.getCategoryById(categoryModifiche.categoryId).firstOrNull()?.let { datiCategory ->
+                val updatedCategory = datiCategory.copy(
+                    categoryName = categoryModifiche.newName ?: datiCategory.categoryName,
+                    categoryMacroCategoryId = categoryModifiche.newMacroCategoryId ?: datiCategory.categoryMacroCategoryId
+                )
+                categoryRepository.updateCategory(updatedCategory)
+                notifyDataChanged()
+            }
+        }
+    }
+
+    fun updateSubcategory(subcategoryModifiche: SottocategoriaUpdateData) {
+        viewModelScope.launch {
+            if (subcategoryModifiche.subcategoryId != null) {
+                categoryRepository.getSubcategoryById(subcategoryModifiche.subcategoryId)
+                    .firstOrNull()?.let { datiSubcategory ->
+                    val updatedSubcategory = datiSubcategory.copy(
+                        subcategoryName = subcategoryModifiche.newName ?: datiSubcategory.subcategoryName
+                    )
+                    categoryRepository.updateSubcategory(updatedSubcategory)
+                    notifyDataChanged()
+                }
+            }
+        }
+    }
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val subCategories: StateFlow<List<CategoriaUiModel>> = _selectedCategoryId.flatMapLatest { id ->
@@ -209,6 +294,32 @@ class CategoriesViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
+
+    data class MacroCategoryUiModel(
+        val macroCategoryId: Long,
+        val name: String
+    )
+
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val macroCategories: StateFlow<List<MacroCategoryUiModel>> =
+        categoryRepository.getAllMacroCategories()
+            .map { entitiesList ->
+                entitiesList.map { entity -> entity.toUiModel() }
+            }
+            .catch { e ->
+                emit(emptyList<MacroCategoryUiModel>()) // Emetti una lista vuota in caso di errore
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily, // O SharingStarted.WhileSubscribed(5000)
+                initialValue = emptyList<MacroCategoryUiModel>() // Valore iniziale finché il flow non emette
+            )
+
+    fun MacroCategoryEntity.toUiModel(): MacroCategoryUiModel {
+        return MacroCategoryUiModel(macroCategoryId = this.macroCategoryId, name = this.macroCategoryName)
+    }
+
 
     fun notifyDataChanged() { // Occorre chiamare questo metodo quando budget/transazioni sono cambiate, per aggiornare i dati in homepage
         _dataRefreshTrigger.value = System.currentTimeMillis()

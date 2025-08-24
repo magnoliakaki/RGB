@@ -1,5 +1,6 @@
 package com.bloomtregua.rgb.layout.homepage
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -43,6 +44,7 @@ private fun PreviewCategoriaDettaglio() {
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 onCategoryClick = { },
+                onSubCategoryClick = { },
                 hasAlertCategoria = false,
                 currencyFormatter = NumberFormat.getCurrencyInstance(Locale.ITALY) as DecimalFormat
             )
@@ -68,6 +70,7 @@ private fun PreviewCategoriaDettaglioNomeLungo() {
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 onCategoryClick = { },
+                onSubCategoryClick = { },
                 hasAlertCategoria = false,
                 currencyFormatter = NumberFormat.getCurrencyInstance(Locale.ITALY) as DecimalFormat
             )
@@ -92,6 +95,7 @@ private fun PreviewCategoriaDettaglioSpesaEccessiva() {
                 ),
                 modifier = Modifier.fillMaxWidth(),
                 onCategoryClick = { },
+                onSubCategoryClick = { },
                 hasAlertCategoria = true,
                 currencyFormatter = NumberFormat.getCurrencyInstance(Locale.ITALY) as DecimalFormat
             )
@@ -104,13 +108,14 @@ fun CategoriaDettaglio(
     categoria: CategoriaUiModel, // Passa l'oggetto dati
     modifier: Modifier = Modifier,
     onCategoryClick: (Long) -> Unit,
+    onSubCategoryClick: (Long?) -> Unit,
     hasAlertCategoria : Boolean,
     currencyFormatter: DecimalFormat
 ) {
     ConstraintLayout(
         modifier = modifier
             .padding(bottom = 8.dp) // Aggiungi padding tra gli elementi
-            .clickable { onCategoryClick(categoria.categoryId) } // Rendi l'intero elemento cliccabile
+            .clickable { onCategoryClick(categoria.categoryId); onSubCategoryClick(categoria.subcategoryId) } // Rendi l'intero elemento cliccabile
 
     ) {
         val (nomeCategoria, totaleResiduoCategoria, totaleSpesoCategoria, totaleCategoria, spesoCategoria, alertCategoria) = createRefs()

@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.bloomtregua.rgb.ui.theme.BarHeightS
 import com.bloomtregua.rgb.ui.theme.*
 import com.bloomtregua.rgb.viewmodels.AccountViewModel
 import com.bloomtregua.rgb.viewmodels.CategoriesViewModel
@@ -39,8 +38,10 @@ fun HomePage(
 
     // Osserva lo StateFlow delle categorie dal ViewModel
     val selectedCategoryId by categoriesViewModel.selectedCategoryId.collectAsState()
+    val selectedSubcategoryId by categoriesViewModel.selectedSubcategoryId.collectAsState()
     val subCategories by categoriesViewModel.subCategories.collectAsState()
     val categoryDetails by categoriesViewModel.selectedCategoryDetails.collectAsState()
+    val subcategoryDetails by categoriesViewModel.selectedSubcategoryDetails.collectAsState()
     val categorieState by categoriesViewModel.categoriesUiModel.collectAsState()
     val isLoading by categoriesViewModel.isLoading.collectAsState()
 
@@ -49,6 +50,9 @@ fun HomePage(
     val activeAccountHasAlert = categorieState.find { it.hasErrorInSubcategories }
     val allAccounts by accountViewModel.allAccountsFlow.collectAsState(initial = emptyList())
     val activeAccount = allAccounts.find { it.accountName == activeAccountName }
+
+    //Ottengo la selezione delle macrocategorie
+    val availableMacroCategories by categoriesViewModel.macroCategories.collectAsState()
 
     ConstraintLayout(modifier = modifier) {
         val (DettaglioProssimeTransazioni, ListaCategorieRef, LoadingIndicatorRef, BarraNavigazione, RiquadroConto, ProssimeTransazioni) = createRefs()
@@ -148,133 +152,209 @@ fun HomePage(
                             hasAlertCategoria = categoriaItem.hasErrorInSubcategories,
                             onCategoryClick = { categoryId ->
                                 categoriesViewModel.selectCategory(categoryId)
-                            }
+                            },
+                            onSubCategoryClick = { }
                         )
                     }
                 }
             }
-        } else { // selectedCategoryId != null -> MOSTRA DETTAGLI SOTTO-CATEGORIA
+        } else { // selectedCategoryId != null -> MOSTRA DETTAGLI CATEGORIA SELEZIONATA o DELL'EVENTUALE TUNNEL SU UNA SOTTOCATEGORIA
 
-            // Se ho selezionato una categoria, allora imposto che si torni alla homepage se si preme il tasto indietro di Android.
-            BackHandler(enabled = true) {
-                categoriesViewModel.clearSelectedCategory()
-            }
+            // Mostro i dettagli della categoria selezionata con le relative sottocategorie
+            if(selectedSubcategoryId == null) {
 
-            if (categoryDetails == null) {
-                Box(
-                    modifier = Modifier.constrainAs(LoadingIndicatorRef) {
-                        top.linkTo(RiquadroConto.bottom, margin = MarginS)
-                        bottom.linkTo(horizontalBottomGuideLineCategorie)
-                        start.linkTo(verticalLeftGuideline)
-                        end.linkTo(verticalRightGuideline)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    },
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+                // Se ho selezionato una categoria, allora imposto che si torni alla homepage se si preme il tasto indietro di Android.
+                BackHandler(enabled = true) {
+                    categoriesViewModel.clearSelectedCategory()
+                }
+
+                if (categoryDetails == null) {
+                    Box(
+                        modifier = Modifier.constrainAs(LoadingIndicatorRef) {
+                            top.linkTo(RiquadroConto.bottom, margin = MarginS)
+                            bottom.linkTo(horizontalBottomGuideLineCategorie)
+                            start.linkTo(verticalLeftGuideline)
+                            end.linkTo(verticalRightGuideline)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                        },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+
+                    LazyColumn(
+                        modifier = Modifier.constrainAs(ListaCategorieRef) { // Stessa ref per semplicità
+                            top.linkTo(RiquadroConto.bottom, margin = MarginXS)
+                            start.linkTo(verticalLeftGuideline)
+                            end.linkTo(verticalRightGuideline)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.wrapContent
+                        }
+                    ) {
+
+                        categoryDetails?.let { details ->
+                            // --- Parte 1: Header/Informazioni Principali ---
+                            item {
+                                CategoryHeaderSection(
+                                    category = details,
+                                    currencyFormatter = currencyFormatter,
+                                    hasAlertCategoria = details.hasErrorInSubcategories,
+                                    onNavigateBack = {
+                                        categoriesViewModel.clearSelectedCategory()
+                                    }
+                                )
+                            }
+
+                            item {
+                                androidx.compose.material3.HorizontalDivider(
+                                    modifier = Modifier.padding(bottom = MarginXS)
+                                )
+                            }
+                        }
+                    }
+
+                    LazyColumn(
+                        modifier = Modifier.constrainAs(createRef()) { // Stessa ref per semplicità
+                            top.linkTo(ListaCategorieRef.bottom)
+                            bottom.linkTo(horizontalBottomGuideLineTransazioni)
+                            start.linkTo(verticalLeftGuideline)
+                            end.linkTo(verticalRightGuideline)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                        }
+                    ) {
+
+                        categoryDetails?.let { details ->
+
+                            // --- Parte 2: Elenco delle Sottocategorie ---
+                            if (subCategories.isNotEmpty()) {
+                                item {
+                                    Text(
+                                        text = "Dettaglio Sottocategorie:",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.padding(bottom = MarginXXS)
+                                    )
+                                }
+                                items(
+                                    items = subCategories,
+                                    key = { subCategory -> "sub_${subCategory.subcategoryId}" }
+                                ) { subCategoryItem ->
+                                    SubCategoryListItem(
+                                        subCategory = subCategoryItem,
+                                        currencyFormatter = currencyFormatter,
+                                        onSubCategoryClick = { subcategoryId ->
+                                            categoriesViewModel.selectSubcategory(subcategoryId)
+                                        }
+                                    )
+                                }
+                            } else {
+                                item {
+                                    Text(
+                                        "Nessuna sottocategoria presente.",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.padding(
+                                            top = MarginXS,
+                                            bottom = MarginXXS
+                                        )
+                                    )
+                                }
+                            }
+
+
+                            // --- Parte 3: Campi Modificabili ---
+                            item {
+                                CategoryEditableFieldsSection(
+                                    category = details,
+                                    onUpdateCategoryData = { updatedData ->
+                                        Log.d(
+                                            "HomePage",
+                                            "Update data for ${details.categoryName}: $updatedData"
+                                        )
+                                        categoriesViewModel.updateCategory(updatedData) // Chiamata al ViewModel
+                                    },
+                                    availableMacroCategories = availableMacroCategories,
+                                    currencyFormatter = currencyFormatter, // Passa il formatter
+                                    modifier = Modifier.padding(top = 8.dp) // Spazio prima dei campi editabili
+                                )
+                            }
+                        }
+                    }
                 }
             } else {
 
-                LazyColumn(
-                    modifier = Modifier.constrainAs(ListaCategorieRef) { // Stessa ref per semplicità
-                        top.linkTo(RiquadroConto.bottom, margin = MarginXS)
-                        start.linkTo(verticalLeftGuideline)
-                        end.linkTo(verticalRightGuideline)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.wrapContent
-                    }
-                ) {
-
-                    categoryDetails?.let { details ->
-                        // --- Parte 1: Header/Informazioni Principali ---
-                        item {
-                            CategoryHeaderSection(
-                                category = details,
-                                currencyFormatter = currencyFormatter,
-                                hasAlertCategoria = details.hasErrorInSubcategories,
-                                onNavigateBack = {
-                                    categoriesViewModel.clearSelectedCategory()
-                                }
-                            )
-                        }
-
-                        item {
-                            androidx.compose.material3.HorizontalDivider(
-                                modifier = Modifier.padding(bottom = MarginXS)
-                            )
-                        }
-                    }
+                // Se ho selezionato una categoria ed al suo interno una sottocategoria, allora imposto che si torni alla visione della categoria se si preme il tasto indietro di Android.
+                BackHandler(enabled = true) {
+                    Log.d("BacklCategoria", "start")
+                    categoriesViewModel.clearSelectedSubcategory()
                 }
 
-            LazyColumn(
-                modifier = Modifier.constrainAs(createRef()) { // Stessa ref per semplicità
-                    top.linkTo(ListaCategorieRef.bottom)
-                    bottom.linkTo(horizontalBottomGuideLineTransazioni)
-                    start.linkTo(verticalLeftGuideline)
-                    end.linkTo(verticalRightGuideline)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                }
-            ) {
-
-                categoryDetails?.let { details ->
-
-                    // --- Parte 2: Elenco delle Sottocategorie ---
-                    if (subCategories.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = "Dettaglio Sottocategorie:",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(bottom = MarginXXS)
-                            )
-                        }
-                        items(
-                            items = subCategories,
-                            key = { subCategory -> "sub_${subCategory.subcategoryId}" }
-                        ) { subCategoryItem ->
-                            SubCategoryListItem(
-                                subCategory = subCategoryItem,
-                                currencyFormatter = currencyFormatter,
-                                onSubCategoryClick = { subCategoryId ->
-                                    Log.d(
-                                        "HomePage",
-                                        "SubCategory clicked: $subCategoryId, Nome: ${subCategoryItem.categoryName}"
-                                    )
-                                    // categoriesViewModel.selectCategory(subCategoryId) // Per drill-down ulteriore
-                                }
-                                // Non serve un modifier di padding qui se SubCategoryListItem lo ha già
-                            )
-                        }
-                    } else {
-                        item {
-                            Text(
-                                "Nessuna sottocategoria presente.",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(top = MarginXS, bottom = MarginXXS)
-                            )
-                        }
+                if (subcategoryDetails == null) {
+                    Box(
+                        modifier = Modifier.constrainAs(LoadingIndicatorRef) {
+                            top.linkTo(RiquadroConto.bottom, margin = MarginS)
+                            bottom.linkTo(horizontalBottomGuideLineCategorie)
+                            start.linkTo(verticalLeftGuideline)
+                            end.linkTo(verticalRightGuideline)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                        },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
                     }
+                } else {
 
+                    LazyColumn(
+                        modifier = Modifier.constrainAs(ListaCategorieRef) {
+                            top.linkTo(RiquadroConto.bottom, margin = MarginXS)
+                            bottom.linkTo(horizontalBottomGuideLineCategorie)
+                            start.linkTo(verticalLeftGuideline)
+                            end.linkTo(verticalRightGuideline)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                        }
+                    ) {
 
-                    // --- Parte 3: Campi Modificabili ---
-                    item {
-                        CategoryEditableFieldsSection(
-                            category = details,
-                            onUpdateCategoryData = { updatedData ->
-                                Log.d(
-                                    "HomePage",
-                                    "Update data for ${details.categoryName}: $updatedData"
+                        subcategoryDetails?.let { details ->
+                            // --- Parte 1: Header/Informazioni Principali DELLA SOTTOCATEGORIA ---
+                            item {
+                                SubcategoryHeaderSection(
+                                    category = details,
+                                    currencyFormatter = currencyFormatter,
+                                    hasAlertCategoria = false,
+                                    onNavigateBack = {
+                                        categoriesViewModel.clearSelectedSubcategory()
+                                    }
                                 )
-                                // categoriesViewModel.updateCategory(updatedData) // Chiamata al ViewModel
-                            },
-                            currencyFormatter = currencyFormatter, // Passa il formatter
-                            modifier = Modifier.padding(top = 8.dp) // Spazio prima dei campi editabili
-                        )
+                            }
+
+                            item {
+                                androidx.compose.material3.HorizontalDivider(
+                                    modifier = Modifier.padding(bottom = MarginXS)
+                                )
+                            }
+
+                            // --- Parte 2: Campi Modificabili ---
+                            item {
+                                SubcategoryEditableFieldsSection(
+                                    category = details,
+                                    onUpdateSubcategoryData = { updatedData ->
+                                        Log.d(
+                                            "HomePage",
+                                            "Update data for ${details.categoryName}: $updatedData"
+                                        )
+                                        categoriesViewModel.updateSubcategory(updatedData) // Chiamata al ViewModel
+                                    },
+                                    currencyFormatter = currencyFormatter, // Passa il formatter
+                                    modifier = Modifier.padding(top = 8.dp) // Spazio prima dei campi editabili
+                                )
+                            }
+                        }
                     }
                 }
             }
-        }
     }
 
         if (selectedCategoryId == null) {

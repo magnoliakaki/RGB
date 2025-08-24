@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertCategory(transaction: CategoryEntity): Long
+    suspend fun insertCategory(category: CategoryEntity): Long
 
     @Update
-    suspend fun updateCategory(transaction: CategoryEntity)
+    suspend fun updateCategory(category: CategoryEntity)
 
     @Delete
-    suspend fun deleteTCategory(transaction: CategoryEntity)
+    suspend fun deleteTCategory(category: CategoryEntity)
 
     @Query("SELECT * FROM categories")
     fun getAllCategories(): Flow<List<CategoryEntity>>
@@ -147,6 +147,7 @@ interface CategoryDao {
                             AND t2.transactionSubCategoryId = t.transactionSubCategoryId
                             AND t2.transactionTimestamp >= gt.dataTransazione
                             AND t2.transactionTimestamp < date('now', '+1 day')
+                            AND t2.transactionDaContabilizzare = false
                     )
                     WHEN bi.budgetResetType = 'DATE' THEN (
                         SELECT
@@ -159,6 +160,7 @@ interface CategoryDao {
                             AND t2.transactionSubCategoryId = t.transactionSubCategoryId
                             AND t2.transactionDate >= gt.dataTransazione
                             AND t2.transactionDate <= date('now')
+                            AND t2.transactionDaContabilizzare = false
                     )
                 END AS ImportoSottocategoria
             FROM
@@ -186,6 +188,7 @@ interface CategoryDao {
                             t2.transactionCategoryId = t.transactionCategoryId
                             AND t2.transactionTimestamp >= gt.dataTransazione
                             AND t2.transactionTimestamp < date('now', '+1 day')
+                            AND t2.transactionDaContabilizzare = false
                     )
                     WHEN bi.budgetResetType = 'DATE' THEN (
                         SELECT
@@ -197,6 +200,7 @@ interface CategoryDao {
                             t2.transactionCategoryId = t.transactionCategoryId
                             AND t2.transactionDate >= gt.dataTransazione
                             AND t2.transactionDate <= date('now')
+                            AND t2.transactionDaContabilizzare = false
                     )
                 END AS ImportoCategoria
             FROM

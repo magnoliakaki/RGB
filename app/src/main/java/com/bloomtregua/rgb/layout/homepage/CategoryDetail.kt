@@ -1,23 +1,33 @@
 package com.bloomtregua.rgb.layout.homepage
 
 import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,18 +35,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.bloomtregua.rgb.ui.theme.MarginXS
 import com.bloomtregua.rgb.ui.theme.RGBTheme
 import com.bloomtregua.rgb.viewmodels.CategoriaUiModel
+import com.bloomtregua.rgb.viewmodels.CategoriaUpdateData
+import com.bloomtregua.rgb.viewmodels.CategoriesViewModel.MacroCategoryUiModel
 import java.text.DecimalFormat
-
-data class CategoriaUpdateData(
-    val categoryId: Long,
-    val newName: String?, // Permetti null se il nome non è stato modificato
-    val newAllocatedAmount: Double? // Permetti null se l'importo non è stato modificato
-    // Aggiungi altri campi che l'utente può modificare
-)
 
 @Composable
 fun CategoryHeaderSection(
@@ -63,7 +70,8 @@ fun CategoryHeaderSection(
             modifier = Modifier.fillMaxWidth(),
             currencyFormatter = currencyFormatter,
             hasAlertCategoria = hasAlertCategoria,
-            onCategoryClick = { }
+            onCategoryClick = { },
+            onSubCategoryClick = { },
         )
     }
 }
@@ -72,75 +80,154 @@ fun CategoryHeaderSection(
 fun SubCategoryListItem(
     subCategory: CategoriaUiModel,
     currencyFormatter: DecimalFormat,
-    onSubCategoryClick: (Long) -> Unit,
+    onSubCategoryClick: (Long?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     CategoriaDettaglio(
         categoria = subCategory,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         currencyFormatter = currencyFormatter,
         hasAlertCategoria = false,
-        onCategoryClick = { }
+        onCategoryClick = { },
+        onSubCategoryClick = { subcategoryId ->
+            onSubCategoryClick(subcategoryId)
+            Log.d("SubCategoryListItem", "Cliccato SubCategory: $subcategoryId")
+        }
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryEditableFieldsSection(
     category: CategoriaUiModel,
     onUpdateCategoryData: (CategoriaUpdateData) -> Unit,
+    availableMacroCategories: List<MacroCategoryUiModel>, // Lista passata dal ViewModel
     currencyFormatter: DecimalFormat, // Potrebbe servire per formattare/parseare input numerici
     modifier: Modifier = Modifier
 ) {
     var name by remember(category.categoryId, category.categoryName) { mutableStateOf(category.categoryName) }
     var allocatedAmountString by remember(category.categoryId, category.categoryAllAmount) {
         mutableStateOf(category.categoryAllAmount?.let { amount ->
-            // Formatta inizialmente senza simbolo di valuta per la modifica
-            val symbols = currencyFormatter.decimalFormatSymbols.clone() as java.text.DecimalFormatSymbols
-            symbols.currencySymbol = "" // Rimuovi il simbolo per il campo di testo
-            val tempFormatter = java.text.DecimalFormat(currencyFormatter.toPattern(), symbols)
-            tempFormatter.format(amount).trim()
+            DecimalFormat("0.00").format(amount)
         } ?: "")
+    }
+
+    // --- SPINNER PER MACRO CATEGORIA ---
+    var macroCategoryMenuExpanded by remember { mutableStateOf(false) }
+    var userSelectedMacroInSpinner by remember(category.categoryMacroCategoryId, availableMacroCategories) {
+        mutableStateOf(
+            availableMacroCategories.find { it.macroCategoryId == category.categoryMacroCategoryId }
+        )
     }
 
     Column(modifier = modifier.padding(bottom = MarginXS)) {
         Text(
             "Modifica Dati Categoria:",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        Text(
+            "Budget Allocato:  " + currencyFormatter.format(category.categoryAllAmount),
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(bottom = 12.dp)
         )
         OutlinedTextField(
             value = name,
-            onValueChange = { name = it },
+            onValueChange = { newName ->
+                // Impedisci l'inserimento di newline
+                if (!newName.contains("\n")) {
+                    name = newName
+                }
+            },
             label = { Text("Nome Categoria") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true, // Ottimizza per una singola riga
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Next // Cambia l'azione IME se seguito da altri campi
+            )
         )
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = allocatedAmountString,
-            onValueChange = { allocatedAmountString = it },
-            label = { Text("Budget Allocato") },
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+//        OutlinedTextField(
+//            value = allocatedAmountString,
+//            onValueChange = { newValue ->
+//                // Permetti solo numeri, un separatore decimale e fino a due cifre decimali
+//                val regex = Regex("^\\d*([.,]?\\d{0,2})$")
+//                if (newValue.isEmpty() || regex.matches(newValue)) {
+//                    allocatedAmountString = newValue.replace(',', '.') // Normalizza a punto per il parsing
+//                }
+//            },
+//            label = { Text("Budget Allocato") },
+//            modifier = Modifier.fillMaxWidth(),
+//            keyboardOptions = KeyboardOptions(
+//                keyboardType = KeyboardType.Number, // Tastiera numerica ottimizzata
+//                imeAction = ImeAction.Done // Azione IME per l'ultimo campo
+//            ),
+//            readOnly = true,
+//            singleLine = true, // Ottimizza per una singola riga
+//            prefix = { Text("€ ") } // Mostra il simbolo dell'euro come prefisso
+//        )
+//        Spacer(modifier = Modifier.height(8.dp))
+
+        // --- SPINNER PER MACRO CATEGORIA ---
+        ExposedDropdownMenuBox(
+            expanded = macroCategoryMenuExpanded,
+            onExpandedChange = { macroCategoryMenuExpanded = !macroCategoryMenuExpanded },
             modifier = Modifier.fillMaxWidth()
-        )
-        // Aggiungi altri campi qui
+        ) {
+            OutlinedTextField(
+                value = userSelectedMacroInSpinner?.name ?: "Nessuna", // Mostra il nome della macro selezionata
+                onValueChange = { /* Non modificabile direttamente, solo tramite selezione */ },
+                label = { Text("Macro Categoria") },
+                readOnly = true, // L'utente seleziona, non digita
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = macroCategoryMenuExpanded)
+                },
+                modifier = Modifier
+                    .menuAnchor() // Importante per posizionare il menu
+                    .fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = macroCategoryMenuExpanded,
+                onDismissRequest = { macroCategoryMenuExpanded = false }
+            ) {
+                availableMacroCategories.forEach { macro ->
+                    DropdownMenuItem(
+                        text = { Text(macro.name) },
+                        onClick = {
+                            userSelectedMacroInSpinner = macro // Aggiorna lo stato LOCALE
+                            macroCategoryMenuExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+        // --- FINE SPINNER ---
+
 
         Button(
             onClick = {
-                val newAmount = try {
-                    // Prova a fare il parse usando il formatter per gestire i separatori locali
-                    currencyFormatter.parse(allocatedAmountString)?.toDouble()
-                } catch (e: Exception) {
-                    Log.e("EditableFields", "Errore nel parsing dell'importo: $allocatedAmountString", e)
-                    null // O gestisci l'errore mostrando un messaggio all'utente
-                }
+//                val newAmount = if (allocatedAmountString.isNotBlank()) {
+//                    try {
+//                        allocatedAmountString.replace(',', '.').toDouble()
+//                    } catch (e: NumberFormatException) {
+//                        Log.e("EditableFields", "Errore nel parsing dell'importo: $allocatedAmountString", e)
+//                        0.00
+//                    }
+//                } else {
+//                    0.00
+//                }
+
+                // Prendi l'ID dalla macro categoria SELEZIONATA DALL'UTENTE (stato locale)
+                val selectedMacroIdByUser = userSelectedMacroInSpinner?.macroCategoryId
 
                 onUpdateCategoryData(
                     CategoriaUpdateData(
                         categoryId = category.categoryId,
-                        newName = name,
-                        newAllocatedAmount = newAmount
+                        newName = if (name != category.categoryName) name else null, // Invia solo se cambiato
+                        newMacroCategoryId = if (selectedMacroIdByUser != category.categoryMacroCategoryId) selectedMacroIdByUser else null
                     )
                 )
+
             },
             modifier = Modifier
                 .padding(top = 16.dp)
@@ -213,7 +300,15 @@ fun CategoryEditableFieldsSectionPreviewConDati() {
                     categoryMacroCategoryId = null
                 ),
                 onUpdateCategoryData = {},
-                currencyFormatter = DecimalFormat("#,##0.00")
+                currencyFormatter = DecimalFormat("#,##0.00"),
+                availableMacroCategories = listOf(
+                    MacroCategoryUiModel(1L, "Casa"),
+                    MacroCategoryUiModel(2L, "Lavoro"),
+                    MacroCategoryUiModel(3L, "Tempo Libero")
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             )
         }
     }

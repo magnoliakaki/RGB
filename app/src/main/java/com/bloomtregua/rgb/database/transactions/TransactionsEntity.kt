@@ -59,5 +59,8 @@ data class TransactionEntity(
     val transactionSubCategoryId: Long? = null,
 
     @ColumnInfo(name = "transactionMacroCategoryId")
-    val transactionMacroCategoryId: Long? = null
+    val transactionMacroCategoryId: Long? = null,
+
+    @ColumnInfo(name = "transactionDaContabilizzare", defaultValue = "0") // Default a false (non da contabilizzare inizialmente)
+    val transactionDaContabilizzare: Boolean = false
 )

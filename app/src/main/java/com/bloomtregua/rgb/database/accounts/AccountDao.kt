@@ -16,6 +16,9 @@ interface AccountDao {
     @Update
     suspend fun updateAccount(account: AccountEntity)
 
+    @Query("UPDATE accounts SET accountBalance = :newBalance WHERE accountId = :accountId")
+    suspend fun updateAccountBalance(accountId: Long, newBalance: Double)
+
     @Delete
     suspend fun deleteAccount(account: AccountEntity)
 

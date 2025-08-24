@@ -25,7 +25,7 @@ interface TransactionDao {
     fun getAllTransactions(): Flow<List<TransactionEntity>>
 
     @Query("SELECT * FROM transactions WHERE transactionId = :transactionId")
-    fun getTransactionById(transactionId: Int): Flow<TransactionEntity>
+    fun getTransactionById(transactionId: Long): Flow<TransactionEntity>
 
     @Query("""
        SELECT MAX(transactionDate)
@@ -75,6 +75,7 @@ interface TransactionDao {
        WHERE transactionCategoryId = :categoryId
          AND transactionDate >= :startDate
          AND transactionDate <= date('now')
+         AND transactionDaContabilizzare = false
    """)
     suspend fun getSumTransactionsFromDateByCategoryId(
         categoryId: Long,
@@ -87,6 +88,7 @@ interface TransactionDao {
        WHERE transactionCategoryId = :categoryId
          AND transactionTimestamp >= :startDate
          AND transactionTimestamp < date('now', '+1 day')
+         AND transactionDaContabilizzare = false
    """)
     suspend fun getSumTransactionsFromTimestampByCategoryId(
         categoryId: Long,
@@ -99,6 +101,7 @@ interface TransactionDao {
        WHERE transactionSubCategoryId = :subcategoryId
          AND transactionDate >= :startDate
          AND transactionDate <= date('now')
+         AND transactionDaContabilizzare = false
    """)
     suspend fun getSumTransactionsFromDateBySubcategoryId(
         subcategoryId: Long,
@@ -111,9 +114,19 @@ interface TransactionDao {
        WHERE transactionSubCategoryId = :subcategoryId
          AND transactionTimestamp >= :startDate
          AND transactionTimestamp < date('now', '+1 day')
+         AND transactionDaContabilizzare = false
    """)
     suspend fun getSumTransactionsFromTimestampBySubcategoryId(
         subcategoryId: Long,
         startDate: LocalDateTime
     ): Double?
+
+    @Query("SELECT c.categoryAccountId FROM transactions t INNER JOIN categories c ON t.transactionCategoryId = c.categoryId WHERE transactionId = :transactionId")
+    suspend fun getAccountByTransactionId(transactionId: Long): Long?
+
+    @Query("SELECT * FROM transactions WHERE transactionDaContabilizzare = true AND transactionDate <= :currentDate")
+    suspend fun getPendingTransactionsForAccounting(currentDate: LocalDate): List<TransactionEntity>
+
+    @Query("UPDATE transactions SET transactionDaContabilizzare = false WHERE transactionId = :transactionId")
+    suspend fun markTransactionAsAccounted(transactionId: Long)
 }

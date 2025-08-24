@@ -3,11 +3,14 @@ package com.bloomtregua.rgb.di
 import android.content.Context
 import androidx.room.Room
 import com.bloomtregua.rgb.database.RGBDatabase
+import com.bloomtregua.rgb.database.RoomDatabaseTransactionRunner
 import com.bloomtregua.rgb.database.accounts.AccountDao
 import com.bloomtregua.rgb.database.budget.BudgetDao
 import com.bloomtregua.rgb.database.categories.CategoryDao
+import com.bloomtregua.rgb.database.categories.MacroCategoryDao
 import com.bloomtregua.rgb.database.categories.SubcategoryDao
 import com.bloomtregua.rgb.database.transactions.TransactionDao
+import com.bloomtregua.rgb.database.util.DatabaseTransactionRunner
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -56,6 +59,17 @@ object DatabaseModule {
     @Provides
     fun provideAccountDao(database: RGBDatabase): AccountDao {
         return database.accountDao()
+    }
+
+    @Provides
+    fun provideMacroCategoryDao(database: RGBDatabase): MacroCategoryDao {
+        return database.macroCategoryDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideDatabaseTransactionRunner(db: RGBDatabase): DatabaseTransactionRunner {
+        return RoomDatabaseTransactionRunner(db)
     }
 }
 
