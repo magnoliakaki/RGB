@@ -19,22 +19,28 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.bloomtregua.rgb.navigation.AppDestinations
 import com.bloomtregua.rgb.ui.theme.*
 import com.bloomtregua.rgb.viewmodels.AccountViewModel
 import com.bloomtregua.rgb.viewmodels.CategoriesViewModel
+import com.bloomtregua.rgb.viewmodels.TransactionsViewModel
 import com.bloomtregua.rgb.viewmodels.UserpreferenceViewModel
 
 
 @Composable()
 fun HomePage(
     modifier: Modifier = Modifier,
+    navController: NavController,
     accountViewModel: AccountViewModel = hiltViewModel(),
     categoriesViewModel: CategoriesViewModel = hiltViewModel(),
+    transactionViewModel: TransactionsViewModel = hiltViewModel(),
     userpreferenceViewModel: UserpreferenceViewModel = hiltViewModel()
 ) {
 
     //Imposto le impostazioni locali dell'utente
-    val currencyFormatter by userpreferenceViewModel.currencyFormatterFlow.collectAsState()
+    val currencyFormatterConSimbolo by userpreferenceViewModel.currencyFormatterWithSymbol.collectAsState()
+    val currencyFormatterSenzaSimbolo by userpreferenceViewModel.currencyFormatterWithoutSymbol.collectAsState()
 
     // Osserva lo StateFlow delle categorie dal ViewModel
     val selectedCategoryId by categoriesViewModel.selectedCategoryId.collectAsState()
@@ -53,6 +59,11 @@ fun HomePage(
 
     //Ottengo la selezione delle macrocategorie
     val availableMacroCategories by categoriesViewModel.macroCategories.collectAsState()
+
+    // Osservo lo StateFlow delle transazioni dal ViewMode
+    val prossimeTransazioni by transactionViewModel.prossimeTransazioni.collectAsState()
+    val isTransactionListZoomedIn by transactionViewModel.isZoomedIn.collectAsState()
+    val dateFormatter by userpreferenceViewModel.dateFormatterFlow.collectAsState()
 
     ConstraintLayout(modifier = modifier) {
         val (DettaglioProssimeTransazioni, ListaCategorieRef, LoadingIndicatorRef, BarraNavigazione, RiquadroConto, ProssimeTransazioni) = createRefs()
@@ -90,19 +101,22 @@ fun HomePage(
                 ?: 0.0, // Passo il saldo, o a 0 se non dovesse essere impostato
             allAccounts = allAccounts,
             onAccountSelected = { accountId ->
-                accountViewModel.setActiveAccount(accountId)
-                categoriesViewModel.clearSelectedCategory()
-                categoriesViewModel.setLoadingValue(true)
+                if (accountId != activeAccount?.accountId) {
+                    accountViewModel.setActiveAccount(accountId)
+                    categoriesViewModel.clearSelectedCategory()
+                    categoriesViewModel.setLoadingValue(true)
+                    transactionViewModel.setZoomIn(false)
+                }
             },
             hasAlert = activeAccountHasAlert?.hasErrorInSubcategories ?: false,
             onAlertClick = {
                 Log.d("HomePage", "Alert icon cliccato!")
             },
-            currencyFormatter = currencyFormatter
+            currencyFormatter = currencyFormatterConSimbolo
 
         )
 
-        // Contenuto Principale: Lista Categorie o Dettagli Categoria
+        // Contenuto Principale: Lista Categorie o Dettagli Categoria o Dettagli Transazione
         if (isLoading) { // Loading iniziale per la lista principale
             Box(
                 modifier = Modifier.constrainAs(LoadingIndicatorRef) {
@@ -117,6 +131,31 @@ fun HomePage(
             ) {
                 CircularProgressIndicator()
             }
+        } else if (isTransactionListZoomedIn) {
+            // --- MOSTRA la lista delle TRANSAZIONI FUTURE. Quando esco, devo mettere a false la variabile osservata
+
+            // Se ho selezionato una categoria, allora imposto che si torni alla homepage se si preme il tasto indietro di Android.
+            BackHandler(enabled = true) {
+                transactionViewModel.setZoomIn(false)
+            }
+
+            ListaDettaglioProssimeTransazioni(
+                prossimeTransazioni = prossimeTransazioni,
+                currencyFormatter = currencyFormatterSenzaSimbolo,
+                dateFormatter = dateFormatter,
+                onNavigateBack = {
+                    transactionViewModel.setZoomIn(false)
+                },
+                modifier = Modifier.constrainAs(DettaglioProssimeTransazioni) {
+                    top.linkTo(RiquadroConto.bottom, margin = MarginXS)
+                    bottom.linkTo(horizontalBottomGuideLineTransazioni)
+                    start.linkTo(verticalLeftGuideline)
+                    end.linkTo(verticalRightGuideline)
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
+                }
+            )
+
         } else if (selectedCategoryId == null) {
             // --- MOSTRA LISTA CATEGORIE PRINCIPALI ---
             LazyColumn(
@@ -148,7 +187,7 @@ fun HomePage(
                         CategoriaDettaglio( // Il tuo Composable per un item della lista principale
                             categoria = categoriaItem,
                             modifier = Modifier.fillMaxWidth(),
-                            currencyFormatter = currencyFormatter,
+                            currencyFormatter = currencyFormatterSenzaSimbolo,
                             hasAlertCategoria = categoriaItem.hasErrorInSubcategories,
                             onCategoryClick = { categoryId ->
                                 categoriesViewModel.selectCategory(categoryId)
@@ -199,7 +238,7 @@ fun HomePage(
                             item {
                                 CategoryHeaderSection(
                                     category = details,
-                                    currencyFormatter = currencyFormatter,
+                                    currencyFormatter = currencyFormatterSenzaSimbolo,
                                     hasAlertCategoria = details.hasErrorInSubcategories,
                                     onNavigateBack = {
                                         categoriesViewModel.clearSelectedCategory()
@@ -243,7 +282,7 @@ fun HomePage(
                                 ) { subCategoryItem ->
                                     SubCategoryListItem(
                                         subCategory = subCategoryItem,
-                                        currencyFormatter = currencyFormatter,
+                                        currencyFormatter = currencyFormatterSenzaSimbolo,
                                         onSubCategoryClick = { subcategoryId ->
                                             categoriesViewModel.selectSubcategory(subcategoryId)
                                         }
@@ -275,7 +314,7 @@ fun HomePage(
                                         categoriesViewModel.updateCategory(updatedData) // Chiamata al ViewModel
                                     },
                                     availableMacroCategories = availableMacroCategories,
-                                    currencyFormatter = currencyFormatter, // Passa il formatter
+                                    currencyFormatter = currencyFormatterConSimbolo, // Passa il formatter
                                     modifier = Modifier.padding(top = 8.dp) // Spazio prima dei campi editabili
                                 )
                             }
@@ -322,7 +361,7 @@ fun HomePage(
                             item {
                                 SubcategoryHeaderSection(
                                     category = details,
-                                    currencyFormatter = currencyFormatter,
+                                    currencyFormatter = currencyFormatterSenzaSimbolo,
                                     hasAlertCategoria = false,
                                     onNavigateBack = {
                                         categoriesViewModel.clearSelectedSubcategory()
@@ -347,7 +386,7 @@ fun HomePage(
                                         )
                                         categoriesViewModel.updateSubcategory(updatedData) // Chiamata al ViewModel
                                     },
-                                    currencyFormatter = currencyFormatter, // Passa il formatter
+                                    currencyFormatter = currencyFormatterConSimbolo, // Passa il formatter
                                     modifier = Modifier.padding(top = 8.dp) // Spazio prima dei campi editabili
                                 )
                             }
@@ -357,23 +396,31 @@ fun HomePage(
             }
     }
 
-        if (selectedCategoryId == null) {
+        if (selectedCategoryId == null && !isTransactionListZoomedIn) {
+            Log.d("ValoreZoom", "Zoom: $isTransactionListZoomedIn")
             ProssimeTransazioni(Modifier.constrainAs(ProssimeTransazioni) {
                 start.linkTo(verticalLeftGuideline)
                 end.linkTo(verticalRightGuideline)
                 top.linkTo(horizontalBottomGuideLineCategorie, margin = MarginXXS)
                 width = Dimension.fillToConstraints
                 height = Dimension.percent(0.05f)
-            })
+            },
+                transactionsViewModel = transactionViewModel
+            )
 
-            DettaglioProssimeTransazioni(Modifier.constrainAs(DettaglioProssimeTransazioni) {
-                top.linkTo(ProssimeTransazioni.bottom, margin = MarginXXS)
-                bottom.linkTo(horizontalBottomGuideLineTransazioni)
-                start.linkTo(verticalLeftGuideline)
-                end.linkTo(verticalRightGuideline)
-                width = Dimension.fillToConstraints
-                height = Dimension.fillToConstraints
-            })
+            DettaglioProssimeTransazioni(
+                prossimeTransazioni = prossimeTransazioni,
+                currencyFormatter = currencyFormatterSenzaSimbolo,
+                dateFormatter = dateFormatter,
+                modifier = Modifier.constrainAs(DettaglioProssimeTransazioni) {
+                    top.linkTo(ProssimeTransazioni.bottom, margin = 4.dp)
+                    bottom.linkTo(horizontalBottomGuideLineTransazioni)
+                    start.linkTo(verticalLeftGuideline)
+                    end.linkTo(verticalRightGuideline)
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
+                }
+            )
         }
 
         BarraNavigazione(
@@ -390,6 +437,8 @@ fun HomePage(
                 categoriesViewModel.notifyDataChanged()
             },
             onPlusCLick = {
+                // --- NAVIGA ALLA PAGINA AddTransaction ---
+                navController.navigate(AppDestinations.ADD_TRANSACTION_ROUTE)
             })
     }
 }

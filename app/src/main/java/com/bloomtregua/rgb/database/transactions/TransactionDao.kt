@@ -31,6 +31,7 @@ interface TransactionDao {
        SELECT MAX(transactionDate)
        FROM transactions
        WHERE transactionCategoryId = :categoryId
+       AND transactionDaContabilizzare = false
    """)
     suspend fun getLastTransactionDateByCategoryId(categoryId: Long): LocalDate?
 
@@ -38,6 +39,7 @@ interface TransactionDao {
        SELECT MAX(transactionDate)
        FROM transactions
        WHERE transactionSubCategoryId = :subCategoryId
+       AND transactionDaContabilizzare = false
    """)
     suspend fun getLastTransactionDateBySubCategoryId(subCategoryId: Long): LocalDate?
 
@@ -45,6 +47,7 @@ interface TransactionDao {
        SELECT MAX(transactionTimestamp)
        FROM transactions
        WHERE transactionCategoryId = :categoryId
+       AND transactionDaContabilizzare = false
    """)
     suspend fun getLastTransactionTimestampByCategoryId(categoryId: Long): LocalDateTime?
 
@@ -52,6 +55,7 @@ interface TransactionDao {
        SELECT MAX(transactionTimestamp)
        FROM transactions
        WHERE transactionSubCategoryId = :subCategoryId
+       AND transactionDaContabilizzare = false
    """)
     suspend fun getLastTransactionTimestampBySubCategoryId(subCategoryId: Long): LocalDateTime?
 
@@ -129,4 +133,14 @@ interface TransactionDao {
 
     @Query("UPDATE transactions SET transactionDaContabilizzare = false WHERE transactionId = :transactionId")
     suspend fun markTransactionAsAccounted(transactionId: Long)
+
+    @Query("""
+       SELECT t.*, c.categoryName
+       FROM transactions t
+       INNER JOIN categories c ON t.transactionCategoryId = c.categoryId AND c.categoryAccountId = :accountId
+       WHERE transactionDaContabilizzare = true
+       ORDER BY transactionDate ASC
+       LIMIT :maxRecord
+   """)
+    fun getFutureTransactionsWithCategoryName(maxRecord: Int, accountId : Long): Flow<List<TransactionWithCategoryName>>
 }

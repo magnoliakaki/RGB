@@ -22,3 +22,4 @@ val BarraCategoriaSfondo = Color(0.3f, 0.52f, 0.61f, 1.0f)
 val BarraCategoriaCompleta = Color(0.83f, 0.85f, 0.5f, 1.0f)
 val BarraCategoriaProgresso = Color(0.65f, 1f, 0.35f, 1.0f)
 val BarraCategoriaErrore = Color.Red
+val TransazioneEntrataGreen = Color(0xFF79D37C)

@@ -321,6 +321,77 @@ suspend fun prepopulateDatabase(context: Context, rgbDatabase: RGBDatabase) {
         )
     )
 
+    //Creo 10 transazioni future
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryGroceries,
+            transactionAmount = 30.0,
+            transactionDate = LocalDate.of(2025, 9, 5),
+            transactionTimestamp = LocalDateTime.of(2025, 9, 5, 10, 0),
+            transactionDescription = "Spesa supermercato settembre",
+            transactionSign = -1,
+            transactionDaContabilizzare = true
+        )
+    )
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categorySavings,
+            transactionAmount = 100.0,
+            transactionDate = LocalDate.of(2025, 10, 1),
+            transactionTimestamp = LocalDateTime.of(2025, 10, 1, 0, 0),
+            transactionDescription = "Trasferimento risparmi ottobre",
+            transactionSign = -1,
+            transactionDaContabilizzare = true
+        )
+    )
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryTripToPrague,
+            transactionAmount = 50.0,
+            transactionDate = LocalDate.of(2025, 9, 15),
+            transactionTimestamp = LocalDateTime.of(2025, 9, 15, 12, 0),
+            transactionDescription = "Pagamento souvenir Praga",
+            transactionSign = -1,
+            transactionDaContabilizzare = true
+        )
+    )
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categorySubscription,
+            transactionSubCategoryId = subCategoryAmazon, //Uso una subcategoria esistente per esempio
+            transactionAmount = 15.99,
+            transactionDate = LocalDate.of(2025, 11, 10),
+            transactionTimestamp = LocalDateTime.of(2025, 11, 10, 8, 0),
+            transactionDescription = "Rinnovo abbonamento Amazon Prime",
+            transactionSign = -1,
+            transactionDaContabilizzare = true
+        )
+    )
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryExtra,
+            transactionSubCategoryId = subCategorySteamEpic,
+            transactionAmount = 49.99,
+            transactionDate = LocalDate.of(2025, 12, 20),
+            transactionTimestamp = LocalDateTime.of(2025, 12, 20, 18, 30),
+            transactionDescription = "Acquisto gioco Steam in saldo",
+            transactionSign = -1,
+            transactionDaContabilizzare = true
+        )
+    )
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryGroceries2, // "Casa"
+            transactionAmount = 75.0,
+            transactionDate = LocalDate.of(2026, 1, 10),
+            transactionTimestamp = LocalDateTime.of(2026, 1, 10, 11, 0),
+            transactionDescription = "Materiale per pulizie casa",
+            transactionSign = -1,
+            transactionDaContabilizzare = true
+        )
+    )
+
+
     val categoryIncome = categoryDao.insertCategory(CategoryEntity(
             categoryName = "Entrate",
             categoryAccountId = accountHype,
@@ -341,6 +412,45 @@ suspend fun prepopulateDatabase(context: Context, rgbDatabase: RGBDatabase) {
             subcategoryCategoryId = categoryIncome
         )
     )
+
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryIncome,
+            transactionSubCategoryId = subCategoryStipendio,
+            transactionAmount = 1500.0,
+            transactionDate = LocalDate.of(2025, 9, 27),
+            transactionTimestamp = LocalDateTime.of(2025, 9, 27, 9, 0),
+            transactionDescription = "Stipendio Settembre",
+            transactionSign = 1,
+            transactionDaContabilizzare = true
+        )
+    )
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryIncome,
+            transactionSubCategoryId = subCategoryTricount,
+            transactionAmount = 50.0,
+            transactionDate = LocalDate.of(2025, 10, 5),
+            transactionTimestamp = LocalDateTime.of(2025, 10, 5, 15, 0),
+            transactionDescription = "Rimborso cena amici Tricount",
+            transactionSign = 1,
+            transactionDaContabilizzare = true
+        )
+    )
+    transactionDao.insertTransaction(
+        TransactionEntity(
+            transactionCategoryId = categoryIncome,
+            transactionAmount = 200.0, // Entrata generica senza sottocategoria
+            transactionDate = LocalDate.of(2026, 2, 15),
+            transactionTimestamp = LocalDateTime.of(2026, 2, 15, 16, 0),
+            transactionDescription = "Vendita oggetti usati online",
+            transactionSign = 1,
+            transactionDaContabilizzare = true
+        )
+    )
+
+    // Fine transazioni future
+
 
     transactionDao.insertTransaction(
         TransactionEntity(

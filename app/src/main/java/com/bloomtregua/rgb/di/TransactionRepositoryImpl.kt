@@ -2,6 +2,7 @@ package com.bloomtregua.rgb.di
 
 import com.bloomtregua.rgb.database.transactions.TransactionDao
 import com.bloomtregua.rgb.database.transactions.TransactionEntity
+import com.bloomtregua.rgb.database.transactions.TransactionWithCategoryName
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import javax.inject.Inject
@@ -15,6 +16,7 @@ interface TransactionRepository {
     suspend fun getPendingTransactionsForAccounting(currentDate: LocalDate): List<TransactionEntity>
     suspend fun markTransactionAsAccounted(transactionId: Long)
     suspend fun getAccountByTransactionId(transactionId: Long): Long?
+    fun getFutureTransactionsWithCategoryName(maxRecord: Int, accountId : Long): Flow<List<TransactionWithCategoryName>>
 }
 
 @Singleton
@@ -48,4 +50,9 @@ class TransactionRepositoryImpl @Inject constructor(
     override suspend fun getAccountByTransactionId(transactionId: Long): Long? {
         return transactionDao.getAccountByTransactionId(transactionId)
     }
+
+    override fun getFutureTransactionsWithCategoryName(maxRecord: Int, accountId : Long): Flow<List<TransactionWithCategoryName>> {
+        return transactionDao.getFutureTransactionsWithCategoryName(maxRecord, accountId)
+    }
+
 }

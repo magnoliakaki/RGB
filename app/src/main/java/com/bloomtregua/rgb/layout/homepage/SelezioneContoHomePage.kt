@@ -91,7 +91,6 @@ fun SelezioneConto(
                     onClick = { expanded = false }
                 )
             } else {
-                Log.d("SelezioneConto", "DropdownMenu visibile. Numero conti da mostrare: ${allAccounts.size}")
                 allAccounts.forEachIndexed { index, account ->
                     DropdownMenuItem(
                         text = {

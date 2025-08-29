@@ -25,6 +25,9 @@ interface CategoryDao {
     @Query("SELECT * FROM categories WHERE categoryId = :categoryId")
     fun getCategoryById(categoryId: Long): Flow<CategoryEntity>
 
+    @Query("SELECT * FROM categories WHERE categoryId = :categoryId")
+    fun getCategoryByIdOnce(categoryId: Long): CategoryEntity?
+
     @Query("SELECT * FROM categories where categoryIncome = false")
     fun getCategorySolaUscita(): Flow<List<CategoryEntity>>
 
@@ -68,7 +71,7 @@ interface CategoryDao {
                                         FROM
                                             Transactions t
                                         WHERE
-                                            t.transactionCategoryId = bi.budgetResetCategory
+                                            t.transactionCategoryId = bi.budgetResetCategory AND t.transactionDaContabilizzare = false
                                     )
                                     ELSE (
                                         SELECT
@@ -76,7 +79,7 @@ interface CategoryDao {
                                         FROM
                                             Transactions t
                                         WHERE
-                                            t.transactionSubCategoryId = bi.budgetResetSubCategory
+                                            t.transactionSubCategoryId = bi.budgetResetSubCategory AND t.transactionDaContabilizzare = false
                                     )
                                 END,
                                 ( -- Fallback se MAX è NULL
@@ -86,10 +89,10 @@ interface CategoryDao {
                                         Transactions t
                                     WHERE
                                         (
-                                            bi.budgetResetSubCategory IS NULL AND t.transactionCategoryId = bi.budgetResetCategory
+                                            bi.budgetResetSubCategory IS NULL AND t.transactionCategoryId = bi.budgetResetCategory AND t.transactionDaContabilizzare = false
                                         )
                                         OR (
-                                            bi.budgetResetSubCategory IS NOT NULL AND t.transactionSubCategoryId = bi.budgetResetSubCategory
+                                            bi.budgetResetSubCategory IS NOT NULL AND t.transactionSubCategoryId = bi.budgetResetSubCategory AND t.transactionDaContabilizzare = false
                                         )
                                 )
                             )

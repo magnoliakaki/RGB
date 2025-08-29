@@ -252,7 +252,7 @@ class CategoriesViewModel @Inject constructor(
             .combine(_dataRefreshTrigger) { accountId, trigger ->
                 accountId
             }
-            .flatMapLatest { accountId -> // 3. Quando conto o trigger cambiano, ricarica/ricalcola
+            .flatMapLatest { accountId -> //  Quando conto o trigger cambiano, ricarica/ricalcola
                 if (accountId == null) {
                     _isLoading.value = false
                     flowOf(emptyList<CategoriaUiModel>())

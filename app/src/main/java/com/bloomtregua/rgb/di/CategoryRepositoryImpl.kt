@@ -36,6 +36,8 @@ interface CategoryRepository {
     suspend fun updateCategory(category: CategoryEntity)
     suspend fun updateSubcategory(subcategory: SubcategoryEntity)
     fun getAllMacroCategories(): Flow<List<MacroCategoryEntity>>
+    fun getAllCategories(): Flow<List<CategoryEntity>>
+    fun getCategoryByIdOnce(categoryId: Long): CategoryEntity?
 }
 
 @Singleton
@@ -125,6 +127,14 @@ class CategoryRepositoryImpl @Inject constructor(
 
     override fun getAllMacroCategories(): Flow<List<MacroCategoryEntity>> {
         return macroCategoryDao.getAllMacroCategories()
+    }
+
+    override fun getAllCategories(): Flow<List<CategoryEntity>> {
+        return categoryDao.getAllCategories()
+    }
+
+    override fun getCategoryByIdOnce(categoryId: Long): CategoryEntity? {
+        return categoryDao.getCategoryByIdOnce(categoryId)
     }
 }
 

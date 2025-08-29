@@ -21,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,9 +29,10 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.bloomtregua.rgb.R
 import com.bloomtregua.rgb.database.accounts.AccountEntity
-import com.bloomtregua.rgb.ui.theme.HeightPercentageToPageM
 import com.bloomtregua.rgb.ui.theme.RGBTheme
+import com.bloomtregua.rgb.viewmodels.TransactionsViewModel
 import java.text.DecimalFormat
+
 
 @Preview(showBackground = true, name = "Anteprima Barra Navigazione")
 @Composable
@@ -51,20 +51,6 @@ private fun PreviewBarraNavigazione() {
                 onPlusCLick = {
                     Log.d("HomePage", "Layers icon cliccata, chiamo notifyDataChanged.")
                 })
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Anteprima Dettaglio Prossime Transazioni")
-@Composable
-private fun PreviewDettaglioProssimeTransazioni() {
-    RGBTheme(dynamicColor = false) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth() // Permetti a Surface di prendere la larghezza
-                .height(46.dp), // Altezza sufficiente per vedere qualcosa
-        ) {
-            DettaglioProssimeTransazioni(modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -133,9 +119,46 @@ fun RiquadroConto(
     }
 }
 
+// Anteprima per RiquadroConto
+@Preview(showBackground = true, name = "Anteprima RiquadroConto con Hype")
+@Composable
+private fun PreviewRiquadroContoHype() {
+    RGBTheme(dynamicColor = false) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp)
+        ) {
+            val sampleAccounts = listOf(
+                AccountEntity(accountId = 1, accountName = "Hype", accountBalance = 1234.56),
+                AccountEntity(accountId = 2, accountName = "Intesa San Paolo", accountBalance = 5678.90),
+                AccountEntity(accountId = 3, accountName = "Revolut", accountBalance = 987.65)
+            )
+            RiquadroConto(
+                modifier = Modifier.fillMaxSize(),
+                activeAccountName = "Hype", // Conto Hype selezionato
+                activeAccountBalance = 1234.56,
+                allAccounts = sampleAccounts,
+                onAccountSelected = { accountId ->
+                    Log.d("PreviewRiquadroConto", "Selezionato conto con ID: $accountId")
+                },
+                hasAlert = true, // Mostra l'alert per la preview
+                onAlertClick = {
+                    Log.d("PreviewRiquadroConto", "Alert cliccato")
+                },
+                currencyFormatter = DecimalFormat("#,##0.00 €") // Formattatore di esempio
+            )
+        }
+    }
+}
+
 @Composable()
-fun ProssimeTransazioni(modifier: Modifier = Modifier) {
-    ConstraintLayout(modifier = modifier) {
+fun ProssimeTransazioni(
+    modifier: Modifier = Modifier,
+    transactionsViewModel: TransactionsViewModel
+) {
+    ConstraintLayout(
+        modifier = modifier) {
         val (TitoloTransazioni, ZoomIn) = createRefs()
 
 
@@ -154,48 +177,8 @@ fun ProssimeTransazioni(modifier: Modifier = Modifier) {
             linkTo(parent.top, parent.bottom, bias = 0.93f)
             width = Dimension.percent(0.06f)
             height = Dimension.percent(0.59f)
-        })
-
-    }
-}
-
-@Composable()
-fun DettaglioProssimeTransazioni(modifier: Modifier = Modifier) {
-    ConstraintLayout(modifier = modifier) {
-        val (DataTransazione, CategoriaTransazione, NomeTransazione, TotaleTransazione) = createRefs()
-
-
-        Text("14/06/25", Modifier
-            .constrainAs(DataTransazione) {
-                linkTo(parent.start, parent.end, bias = 0.0f)
-                linkTo(parent.top, parent.bottom, bias = 0.5f)
-                width = Dimension.wrapContent
-                height = Dimension.percent(HeightPercentageToPageM)
-            }, style = LocalTextStyle.current.copy(color = Color(1.0f, 1.0f, 1.0f, 1.0f), textAlign = TextAlign.Left, fontSize = 14.0.sp))
-
-        Text("Altro", Modifier
-            .constrainAs(CategoriaTransazione) {
-                linkTo(parent.start, parent.end, bias = 0.28f)
-                linkTo(parent.top, parent.bottom, bias = 0.5f)
-                width = Dimension.wrapContent
-                height = Dimension.percent(HeightPercentageToPageM)
-            }, style = LocalTextStyle.current.copy(color = Color(1.0f, 1.0f, 1.0f, 1.0f), textAlign = TextAlign.Left, fontSize = 14.0.sp))
-
-        Text("Rata orecchini", Modifier
-            .constrainAs(NomeTransazione) {
-                linkTo(parent.start, parent.end, bias = 0.62f)
-                linkTo(parent.top, parent.bottom, bias = 0.5f)
-                width = Dimension.wrapContent
-                height = Dimension.percent(HeightPercentageToPageM)
-            }, style = LocalTextStyle.current.copy(color = Color(1.0f, 1.0f, 1.0f, 1.0f), textAlign = TextAlign.Left, fontSize = 14.0.sp, fontStyle = FontStyle.Italic))
-
-        Text("- 38.32", Modifier
-            .constrainAs(TotaleTransazione) {
-                linkTo(parent.start, parent.end, bias = 1.0f)
-                linkTo(parent.top, parent.bottom, bias = 0.5f)
-                width = Dimension.wrapContent
-                height = Dimension.percent(HeightPercentageToPageM )
-            }, style = LocalTextStyle.current.copy(color = Color(1.0f, 1.0f, 1.0f, 1.0f), textAlign = TextAlign.Right, fontSize = 14.0.sp))
+        }.clickable(onClick = { transactionsViewModel.setZoomIn(true) }) // Rendi cliccabile l'alert
+        )
 
     }
 }
@@ -283,7 +266,7 @@ fun ZoomIn(modifier: Modifier = Modifier) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_zoom_in), // Usa l'ID del tuo Vector Asset
-            contentDescription = "ZoomIn", // Descrizione per l'accessibilità
+            contentDescription = "ZoomIn" // Descrizione per l'accessibilità
         )
     }
 }

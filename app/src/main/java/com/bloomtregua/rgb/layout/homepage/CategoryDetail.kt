@@ -56,9 +56,8 @@ fun CategoryHeaderSection(
     Column(modifier = modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onNavigateBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro", modifier = Modifier.padding(end = 16.dp))
             }
-            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "Categoria: ${category.categoryName}",
                 style = MaterialTheme.typography.headlineSmall

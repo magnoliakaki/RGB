@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.bloomtregua.rgb.layout.calculator.CalculatorScreen
 import com.bloomtregua.rgb.ui.theme.*
 import com.bloomtregua.rgb.viewmodels.TransactionsViewModel
@@ -18,6 +19,7 @@ import java.time.LocalTime
 @Composable()
 fun AddTransactionPage(
     modifier: Modifier = Modifier,
+    navController: NavController, // Ricevi il NavController
     transactionsViewModel: TransactionsViewModel = hiltViewModel()
 ) {
     var transactionDate by remember { mutableStateOf(LocalDate.now()) }

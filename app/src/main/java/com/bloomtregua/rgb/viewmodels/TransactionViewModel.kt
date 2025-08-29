@@ -1,16 +1,23 @@
 package com.bloomtregua.rgb.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bloomtregua.rgb.database.transactions.TransactionEntity
+import com.bloomtregua.rgb.database.transactions.TransactionWithCategoryName
+import com.bloomtregua.rgb.di.CategoryRepository
 import com.bloomtregua.rgb.di.TransactionRepository
 import com.bloomtregua.rgb.di.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -37,10 +44,30 @@ fun TransactionEntity.toTransactionUiModel(): TransactionUiModel {
     )
 }
 
+// Data class per rappresentare una transazione futura nella UI
+data class ProssimaTransazioneUiModel(
+    val id: Long,
+    val descrizione: String,
+    val importo: Double,
+    val data: LocalDate,
+    val nomeCategoria: String? = null
+)
+
+fun TransactionWithCategoryName.toProssimaTransazioneUiModel(): ProssimaTransazioneUiModel {
+    return ProssimaTransazioneUiModel(
+        id = this.transaction.transactionId,
+        descrizione = this.transaction.transactionDescription ?: "Transazione",
+        importo = this.transaction.transactionAmount * this.transaction.transactionSign, // Applica il segno per avere l'importo effettivo
+        data = this.transaction.transactionDate,
+        nomeCategoria = this.categoryName
+    )
+}
+
 @HiltViewModel
 class TransactionsViewModel@Inject constructor(
     private val transactionRepository: TransactionRepository,
-    val userPreferencesRepository: UserPreferencesRepository
+    val userPreferencesRepository: UserPreferencesRepository,
+    private val categoryRepository: CategoryRepository
 ) : ViewModel(){
 
     val preferredLocale: StateFlow<java.util.Locale?> = userPreferencesRepository.userLocaleFlow
@@ -86,4 +113,47 @@ class TransactionsViewModel@Inject constructor(
                 }
         }
     }
+
+    private val _isZoomedIn = MutableStateFlow(false) // Inizialmente non zoomato (quindi solo il trafilo i basso con poche transazioni nella homepage)
+    val isZoomedIn: StateFlow<Boolean> = _isZoomedIn.asStateFlow()
+
+
+    fun setZoomIn(zoomed: Boolean) {
+        _isZoomedIn.value = zoomed
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val prossimeTransazioni: StateFlow<List<ProssimaTransazioneUiModel>> =
+        userPreferencesRepository.activeAccountIdFlow
+            .flatMapLatest { accountId -> // Quando accountId cambia, questo blocco viene rieseguito
+                if (accountId == null) {
+                    // Se accountId è null, emetti una lista vuota di ProssimaTransazioneUiModel
+                    flowOf(emptyList<ProssimaTransazioneUiModel>())
+                } else {
+                    // Se accountId non è null, combina con lo stato di isZoomedIn
+                    isZoomedIn.flatMapLatest { zoomed ->
+                        val limit =
+                            if (zoomed) 10000 else 5
+
+                        // Assicurati che getFutureTransactionsWithCategoryName accetti accountId e limit
+                        transactionRepository.getFutureTransactionsWithCategoryName(limit, accountId)
+                            .map { entities -> // entities è List<TransactionWithCategoryName>
+                                entities.map { entity ->
+                                    entity.toProssimaTransazioneUiModel()
+                                }
+                            }
+                    }
+                }
+            }
+            .catch { e ->
+                Log.e("TransactionsVM", "Error collecting prossimeTransazioni", e)
+                emit(emptyList<ProssimaTransazioneUiModel>())
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList() // Valore iniziale mentre i flussi si inizializzano
+            )
+
+
 }

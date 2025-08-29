@@ -1,6 +1,7 @@
 package com.bloomtregua.rgb.database.transactions
 
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.bloomtregua.rgb.database.categories.CategoryEntity
@@ -63,4 +64,10 @@ data class TransactionEntity(
 
     @ColumnInfo(name = "transactionDaContabilizzare", defaultValue = "0") // Default a false (non da contabilizzare inizialmente)
     val transactionDaContabilizzare: Boolean = false
+)
+
+// Data class per il unire le transazioni con il nome categoria e rendere alcune query più efficienti
+data class TransactionWithCategoryName(
+    @Embedded val transaction: TransactionEntity,
+    val categoryName: String?
 )
